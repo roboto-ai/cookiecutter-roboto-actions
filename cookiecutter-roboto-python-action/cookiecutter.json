@@ -1,0 +1,7 @@
+{
+    "project_name": "Roboto Python Action",
+    "__project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
+    "__package_name": "{{ cookiecutter.__project_slug|lower|replace(' ', '_') }}",
+    "author": "Anonymous",
+    "description": "A Python-based Roboto Action"
+}

@@ -1,0 +1,4 @@
+{
+    "name": "{{ cookiecutter.__project_slug }}",
+    "description": "{{ cookiecutter.description }}"
+}

@@ -1,0 +1,16 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    docs,
+    build,
+    dist
+extend-ignore =
+    # https://black.readthedocs.io/en/stable/faq.html#why-are-flake8-s-e203-and-w503-violated
+    E203
+    W503
+extend-select =
+    # https://black.readthedocs.io/en/stable/faq.html#why-are-flake8-s-e203-and-w503-violated
+    W504
+max-line-length = 120
