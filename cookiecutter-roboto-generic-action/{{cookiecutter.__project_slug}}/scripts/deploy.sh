@@ -11,5 +11,40 @@ if [ ! -f "$PACKAGE_ROOT/.venv/bin/roboto" ]; then
     exit 1
 fi
 
+# Set org_id to $ROBOTO_ORG_ID if defined, else the first argument passed to this script
+org_id=${ROBOTO_ORG_ID:-}
+if [ $# -gt 0 ]; then
+    org_id=$1  
+fi
+
 roboto_exe="$PACKAGE_ROOT/.venv/bin/roboto"
-$roboto_exe actions create --from-file $PACKAGE_ROOT/action.json --yes
+
+echo "Pushing {{ cookiecutter.__project_slug }}:latest to Roboto's private registery"
+image_push_args=(
+    --suppress-upgrade-check
+    images push
+    --quiet
+)
+if [[ -v org_id ]]; then
+    image_push_args+=(--org $org_id)
+fi
+image_push_args+=({{ cookiecutter.__project_slug }}:latest)
+image_push_ret_code=0
+image_uri=$($roboto_exe "${image_push_args[@]}")
+image_push_ret_code=$?
+
+if [ $image_push_ret_code -ne 0 ]; then
+    echo "Failed to push {{ cookiecutter.__project_slug }}:latest to Roboto's private registery"
+    exit 1
+fi
+
+echo "Creating {{ cookiecutter.__project_slug }} action"
+create_args=(
+  --from-file $PACKAGE_ROOT/action.json
+  --image $image_uri
+  --yes
+)
+if [[ -v org_id ]]; then
+    create_args+=(--org $org_id)
+fi
+$roboto_exe actions create "${create_args[@]}"
