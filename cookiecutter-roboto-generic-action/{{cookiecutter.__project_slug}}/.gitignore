@@ -6,4 +6,6 @@
 **/__pycache__/
 **/.pytest_cache
 **/dist/
-**/output-*
+*.swp
+*.pyc
+output

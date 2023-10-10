@@ -1,4 +1,9 @@
 {
     "name": "{{ cookiecutter.__project_slug }}",
-    "description": "{{ cookiecutter.description }}"
+    "description": "{{ cookiecutter.description }}",
+    "compute_requirements": {
+        "vCPU": 512,
+        "memory": 1024,
+        "storage": 21
+    }
 }
