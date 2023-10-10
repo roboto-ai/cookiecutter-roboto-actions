@@ -25,7 +25,7 @@ image_push_args=(
     images push
     --quiet
 )
-if [[ -v org_id ]]; then
+if [[ -n $org_id ]]; then
     image_push_args+=(--org $org_id)
 fi
 image_push_args+=({{ cookiecutter.__package_name }}:latest)
@@ -44,7 +44,7 @@ create_args=(
   --image $image_uri
   --yes
 )
-if [[ -v org_id ]]; then
+if [[ -n $org_id ]]; then
     create_args+=(--org $org_id)
 fi
 $roboto_exe actions create "${create_args[@]}"
