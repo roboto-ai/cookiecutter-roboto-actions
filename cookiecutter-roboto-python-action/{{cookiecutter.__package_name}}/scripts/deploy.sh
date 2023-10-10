@@ -19,7 +19,7 @@ fi
 
 roboto_exe="$PACKAGE_ROOT/.venv/bin/roboto"
 
-echo "Pushing {{ cookiecutter.__package_name }}:latest to Roboto's private registery"
+echo "Pushing {{ cookiecutter.__package_name }}:latest to Roboto's private registry"
 image_push_args=(
     --suppress-upgrade-check
     images push
@@ -34,7 +34,7 @@ image_uri=$($roboto_exe "${image_push_args[@]}")
 image_push_ret_code=$?
 
 if [ $image_push_ret_code -ne 0 ]; then
-    echo "Failed to push {{ cookiecutter.__package_name }}:latest to Roboto's private registery"
+    echo "Failed to push {{ cookiecutter.__package_name }}:latest to Roboto's private registry"
     exit 1
 fi
 
