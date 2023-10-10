@@ -2,5 +2,6 @@
     "project_name": "Roboto Generic Action",
     "__project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
     "author": "Anonymous",
-    "description": "A generic Roboto Action"
+    "description": "A generic Roboto Action",
+    "initialize_git_repo": true
 }
