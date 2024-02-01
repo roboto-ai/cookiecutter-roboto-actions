@@ -1,0 +1,14 @@
+{
+    "templates": {
+        "Roboto generic action": {
+            "path": "./cookiecutter-roboto-generic-action",
+            "title": "Roboto generic action",
+            "description": "A Roboto action project"
+        },
+        "Roboto python action": {
+            "path": "./cookiecutter-roboto-python-action",
+            "title": "Roboto python action",
+            "description": "A Roboto action python package"
+        }
+    }
+}
