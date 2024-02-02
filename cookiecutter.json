@@ -2,13 +2,13 @@
     "templates": {
         "Roboto generic action": {
             "path": "./cookiecutter-roboto-generic-action",
-            "title": "Roboto generic action",
-            "description": "A Roboto action project"
+            "title": "Roboto Generic Action",
+            "description": "A Generic Roboto Action Package"
         },
         "Roboto python action": {
             "path": "./cookiecutter-roboto-python-action",
-            "title": "Roboto python action",
-            "description": "A Roboto action python package"
+            "title": "Roboto Python Action",
+            "description": "A Roboto Action Python Package"
         }
     }
 }
