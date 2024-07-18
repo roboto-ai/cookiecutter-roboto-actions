@@ -18,7 +18,7 @@ endif
 ############### Venv ##################
 #######################################
 PYTHON_MAJOR = 3
-PYTHON_MINOR = 10
+PYTHON_MINOR = 12
 PYTHON_VERSION = python$(PYTHON_MAJOR).$(PYTHON_MINOR)
 VENV_NAME := .venv
 VENV_BIN := $(VENV_NAME)/bin
