@@ -27,8 +27,11 @@ if [[ ! "$output_dir" = /* ]]; then
 fi
 
 docker run --rm -it \
+    -u $(id -u):$(id -g) \
+    -v ~/.roboto/config.json:/roboto.config.json \
     -v $input_dir:/input \
     -v $output_dir:/output \
+    -e ROBOTO_CONFIG_FILE=/roboto.config.json \
     -e ROBOTO_INPUT_DIR=/input \
     -e ROBOTO_OUTPUT_DIR=/output \
     -e ROBOTO_DATASET_ID=NOT_SET \

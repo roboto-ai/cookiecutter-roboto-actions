@@ -2,7 +2,11 @@ import logging
 
 from roboto.action_runtime import ActionRuntime
 
-log = logging.getLogger()
+logging.basicConfig(
+    format="[%(levelname)4s:%(filename)s %(lineno)4s %(asctime)s] %(message)s",
+)
+log = logging.getLogger(name="{{cookiecutter.__package_name}}")
+log.setLevel(logging.INFO)
 
 action_runtime = ActionRuntime.from_env()
 
