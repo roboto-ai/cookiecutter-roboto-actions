@@ -8,8 +8,8 @@ PACKAGE_ROOT=$(dirname "${SCRIPTS_ROOT}")
 venv_dir="$PACKAGE_ROOT/.venv"
 
 # Create a virtual environment
-python -m venv --upgrade-deps $venv_dir
+python -m venv --clear --upgrade-deps $venv_dir
 
-# Install roboto
+# Install dev deps
 pip_exe="$venv_dir/bin/pip"
 $pip_exe install --upgrade -r $PACKAGE_ROOT/requirements.dev.txt

@@ -7,7 +7,7 @@ PACKAGE_ROOT=$(dirname "${SCRIPTS_ROOT}")
 
 # Early exit if virtual environment does not exist and/or roboto is not yet installed
 if [ ! -f "$PACKAGE_ROOT/.venv/bin/roboto" ]; then
-    echo "Virtual environment with roboto CLI does not exist. Please run ./scripts/setup.sh first."
+    echo "Virtual environment with roboto SDK does not exist. Please run ./scripts/setup.sh first."
     exit 1
 fi
 

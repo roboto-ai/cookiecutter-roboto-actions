@@ -6,16 +6,16 @@ authors = ["Roboto <admin@roboto.ai>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
-autoflake = "~2.2"
-black = "~23.9"
-cookiecutter = "~2.4"
-flake8 = "~6.1"
-isort = "~5.12"
-poetry = "~1.6"
-roboto = "~0.1"
+autoflake = "~2.3"
+black = "~24.4"
+cookiecutter = "~2.5"
+flake8 = "~7.1"
+isort = "~5.13"
+poetry = "~1.8"
+roboto = "*"
 
 [build-system]
 requires = ["poetry-core"]
