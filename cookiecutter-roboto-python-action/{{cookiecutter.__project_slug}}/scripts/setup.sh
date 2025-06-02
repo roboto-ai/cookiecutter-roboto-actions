@@ -8,7 +8,7 @@ PACKAGE_ROOT=$(dirname "${SCRIPTS_ROOT}")
 venv_dir="$PACKAGE_ROOT/.venv"
 
 # Create a virtual environment
-python -m venv --clear --upgrade-deps $venv_dir
+python3 -m venv --clear --upgrade-deps $venv_dir
 
 # Install dev deps
 pip_exe="$venv_dir/bin/pip"
