@@ -5,5 +5,6 @@
         "vCPU": 512,
         "memory": 1024,
         "storage": 21
-    }
+    },
+    "parameters": []
 }

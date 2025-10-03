@@ -1,14 +1,14 @@
 {
     "templates": {
-        "Roboto generic action": {
-            "path": "./cookiecutter-roboto-generic-action",
-            "title": "Roboto Generic Action",
-            "description": "A Generic Roboto Action Package"
-        },
         "Roboto python action": {
             "path": "./cookiecutter-roboto-python-action",
-            "title": "Roboto Python Action",
-            "description": "A Roboto Action Python Package"
+            "title": "Python Action",
+            "description": "[Recommended] Action template tailored for use with Python. Initialized with the Roboto Python SDK."
+        },
+        "Roboto generic action": {
+            "path": "./cookiecutter-roboto-generic-action",
+            "title": "Generic Action",
+            "description": "Generic action template. Makes no assumption about action authoring language."
         }
     }
 }
