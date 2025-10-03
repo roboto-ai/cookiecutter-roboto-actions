@@ -29,7 +29,7 @@ The virtual environment will be created in the root of the repository, under `.v
 
 #### Runtime dependencies
 
-Add third-party Python libraries required at runtime by your action to `requirements.runtime.txt`.
+Add third-party Python libraries required at runtime by your action to [requirements.runtime.txt](requirements.runtime.txt).
 
 #### System dependencies
 
@@ -45,7 +45,7 @@ Test the container's runtime environment before deployment to Roboto by building
 
 #### Development dependencies
 
-Add Python-based tools used only as part of development and QA (such as linting and testing) to `requirements.dev.txt`.
+Add Python-based tools used only as part of development and QA (such as linting and testing) to [requirements.dev.txt](requirements.dev.txt).
 
 ### Code organization and best practices
 
@@ -95,7 +95,8 @@ When running an action locally, you'll need to set parameters yourself. We recom
 In the example code this repository was initialized with, that interface looks like:
 
 ```python
-class Args(argparse.Namespace):
+@dataclasses.dataclass
+class Args:
   ...
 
 
