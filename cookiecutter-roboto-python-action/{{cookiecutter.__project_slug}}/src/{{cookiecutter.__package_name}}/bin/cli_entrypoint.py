@@ -6,7 +6,10 @@ import argparse
 import logging
 import pathlib
 
-from .. import Args, main
+import roboto
+import roboto.domain.orgs
+
+from .. import main
 
 
 class VerbosityAction(argparse.Action):
@@ -40,6 +43,20 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--org-id",
+        help=(
+            "Roboto organization ID. "
+            "Only necessary if you belong to multiple Roboto organizations."
+        ),
+    )
+
+    parser.add_argument(
+        "--profile",
+        help="Roboto profile to use. Must match a section within the Roboto config.json.",
+        required=False,
+    )
+
+    parser.add_argument(
         "-d",
         "--dry-run",
         action="store_true",
@@ -61,6 +78,26 @@ if __name__ == "__main__":
 
     parsed = parser.parse_args()
 
-    args = Args(**vars(parsed))
+    roboto_client = roboto.RobotoClient.for_profile(parsed.profile) if parsed.profile is not None else roboto.RobotoClient.from_env()
+    
+    org_id = parsed.org_id
+    if org_id is None:
+        member_orgs = roboto.domain.orgs.Org.for_self(roboto_client=roboto_client)
+        if not member_orgs:
+            raise Exception(
+                "No Roboto organizations found. "
+                "Please create an organization or use the --org-id argument to specify one."
+            )
+        org_id = member_orgs[0].org_id
 
-    main(args)
+    context = roboto.InvocationContext(
+        dataset_id="NOT_SET",
+        input_dir=parsed.input_dir,
+        invocation_id="inv_LOCAL_INVOCATION",
+        output_dir=parsed.output_dir,
+        org_id=org_id,
+        roboto_env=roboto.RobotoEnv.default(),
+        roboto_client=roboto_client,
+    )
+
+    main(context, log_level=parsed.log_level, dry_run=parsed.dry_run)

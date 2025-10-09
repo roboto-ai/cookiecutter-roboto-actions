@@ -1,6 +1,7 @@
-import dataclasses
+import os
 import logging
-import pathlib
+
+import roboto
 
 logging.basicConfig(
     format="[%(levelname)4s:%(filename)s %(lineno)4s %(asctime)s] %(message)s",
@@ -8,27 +9,38 @@ logging.basicConfig(
 log = logging.getLogger(name="{{cookiecutter.__package_name}}")
 
 
-@dataclasses.dataclass
-class Args:
-    input_dir: pathlib.Path
-    log_level: int  # logging.ERROR | logging.INFO | logging.DEBUG
-    output_dir: pathlib.Path
+def main(
+    context: roboto.InvocationContext,
+    log_level: int = logging.INFO,
     dry_run: bool = False
-    """Use dry_run to gate side effects like modifying Roboto resources while testing locally."""
+) -> None:
+    log.setLevel(log_level)
 
+    log.debug(
+        os.linesep.join([
+            os.linesep,
+            "#" * 88,
+            "Invocation context:",
+            "    invocation_id: %s",
+            "    dataset_id: %s",
+            "    input_dir: %s",
+            "    output_dir: %s",
+            "    org_id: %s",
+            "#" * 88,
+        ]),
+        context.invocation_id,
+        context.dataset_id,
+        context.input_dir,
+        context.output_dir,
+        context.org_id,
+    )
 
-def main(args: Args) -> None:
-    log.setLevel(args.log_level)
-
-    log.info("Input directory is: %r", args.input_dir)
-    if args.input_dir.exists():
-        log.info("Contents of input directory %r:", args.input_dir)
-        for file in args.input_dir.iterdir():
+    if context.input_dir.exists():
+        log.info("Contents of input directory %r:", context.input_dir)
+        for file in context.input_dir.iterdir():
             log.info("  %s", file)
 
-    log.info("Output directory is: %r", args.output_dir)
-
-    if args.dry_run:
+    if dry_run:
         log.warning("Dry run: skipping a step with a side-effect")
     else:
         log.info("Side effect!")
