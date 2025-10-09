@@ -24,8 +24,9 @@ if __name__ == "__main__":
         member_orgs = roboto.domain.orgs.Org.for_self(roboto_client=roboto_client)
         if not member_orgs:
             raise Exception(
-                "No Roboto organizations found. "
-                "Please create an organization or use the --org-id argument to specify one."
+                "It appears you are not a member of a Roboto organization. "
+                "Please create an organization by logging into the web application (https://app.roboto.ai/) "
+                "or try specifying the --org-id argument."
             )
         org_id = member_orgs[0].org_id
 
