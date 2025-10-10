@@ -1,4 +1,3 @@
-import os
 import logging
 
 import roboto
@@ -12,35 +11,23 @@ log = logging.getLogger(name="{{cookiecutter.__package_name}}")
 def main(
     context: roboto.InvocationContext,
     log_level: int = logging.INFO,
-    dry_run: bool = False
+    dry_run: bool = False,
 ) -> None:
     log.setLevel(log_level)
 
-    log.debug(
-        os.linesep.join([
-            os.linesep,
-            "#" * 88,
-            "Invocation context:",
-            "    invocation_id: %s",
-            "    dataset_id: %s",
-            "    input_dir: %s",
-            "    output_dir: %s",
-            "    org_id: %s",
-            "#" * 88,
-        ]),
-        context.invocation_id,
-        context.dataset_id,
-        context.input_dir,
-        context.output_dir,
-        context.org_id,
-    )
+    if not dry_run:
+        log.info("Invocation inputs:")
+        action_input = context.get_input()
+        if action_input.files:
+            log.info("  Files:")
+            for file, local_path in action_input.files:
+                log.info(
+                    "    %s (downloaded: %s)",
+                    file.relative_path,
+                    local_path is not None,
+                )
 
-    if context.input_dir.exists():
-        log.info("Contents of input directory %r:", context.input_dir)
-        for file in context.input_dir.iterdir():
-            log.info("  %s", file)
-
-    if dry_run:
-        log.warning("Dry run: skipping a step with a side-effect")
-    else:
-        log.info("Side effect!")
+        if action_input.topics:
+            log.info("  Topics:")
+            for topic in action_input.topics:
+                log.info("    %s", topic)

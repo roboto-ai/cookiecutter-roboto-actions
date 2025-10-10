@@ -6,5 +6,6 @@
         "memory": 1024,
         "storage": 21
     },
-    "parameters": []
+    "parameters": [],
+    "requires_downloaded_inputs": false
 }

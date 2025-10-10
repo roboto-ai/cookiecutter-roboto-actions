@@ -1,6 +1,5 @@
 import argparse
 import collections.abc
-import json
 import logging
 import typing
 
@@ -21,17 +20,13 @@ class KeyValuePairsAction(argparse.Action):
         try:
             for pair in values:
                 key, value = pair.split("=")
+
                 if key in self.value_dict:
                     raise parser.error(
                         f"'{key}' was defined multiple times for '{self.dest}'"
                     )
-                # Attempt to parse the value to better handle numbers, booleans, etc
-                parsed_value = value
-                try:
-                    parsed_value = json.loads(value)
-                except json.decoder.JSONDecodeError:
-                    pass  # swallow
-                self.value_dict[key] = parsed_value
+
+                self.value_dict[key] = value
 
             setattr(namespace, self.dest, self.value_dict)
         except Exception as e:

@@ -3,6 +3,8 @@ import collections.abc
 import pathlib
 import sys
 
+from roboto.domain.actions import InvocationInput, FileSelector, DataSelector
+
 from .actions import VerbosityAction, KeyValuePairsAction
 
 
@@ -23,8 +25,7 @@ class Args(argparse.Namespace):
     params: dict[str, str]
     dry_run: bool
     log_level: int
-    input_dir: pathlib.Path
-    output_dir: pathlib.Path
+    workspace_dir: pathlib.Path
     dataset_id: str | None
     file_paths: list[str] | None
     file_query: str | None
@@ -35,6 +36,28 @@ class Args(argparse.Namespace):
     def __init__(self, args: collections.abc.Sequence[str] | None = None):
         super().__init__()
         self.__parse(args)
+
+    def parse_input_spec(self) -> InvocationInput | None:
+        if self.file_query is not None or self.topic_query is not None:
+            return InvocationInput(
+                files=(
+                    FileSelector(query=self.file_query)
+                    if self.file_query is not None
+                    else None
+                ),
+                topics=(
+                    DataSelector(query=self.topic_query)
+                    if self.topic_query is not None
+                    else None
+                ),
+            )
+
+        if self.dataset_id is not None and self.file_paths:
+            return InvocationInput.from_dataset_file_paths(
+                self.dataset_id, self.file_paths
+            )
+
+        return None
 
     def __parse(self, args: collections.abc.Sequence[str] | None):
         parser = argparse.ArgumentParser()
@@ -48,7 +71,7 @@ class Args(argparse.Namespace):
             action=KeyValuePairsAction,
             help=(
                 "Zero or more `<parameter_name>=<parameter_value>` pairs. "
-                "`parameter_value` is parsed as JSON. "
+                "`parameter_value` is parsed as a string."
             ),
         )
 
@@ -78,32 +101,19 @@ class Args(argparse.Namespace):
         )
 
         fs_paths = parser.add_argument_group(
-            "Local Data Directories",
+            "Local Workspace Directory",
             description=(
-                "Optionally specify local filesystem paths to input and output directories."
+                "Optionally specify local filesystem path to workspace directory."
             ),
         )
         root_dir = find_root_dir()
+        default_workspace_path = root_dir / ".workspace"
         fs_paths.add_argument(
-            "-i",
-            "--input-dir",
+            "-w",
+            "--workspace-dir",
             type=pathlib.Path,
-            default=root_dir / "input",
-            help=(
-                "Local filesystem path to input directory. "
-                f"Default: {root_dir / 'input'}"
-            ),
-        )
-
-        fs_paths.add_argument(
-            "-o",
-            "--output-dir",
-            type=pathlib.Path,
-            default=root_dir / "output",
-            help=(
-                "Local filesystem path to output directory. "
-                f"Default: {root_dir / 'output'}"
-            ),
+            default=default_workspace_path,
+            help=f"Local filesystem path to workspace directory. Default: {default_workspace_path}",
         )
 
         global_options = parser.add_argument_group("Global Options")
