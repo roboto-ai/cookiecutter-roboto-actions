@@ -1,16 +1,24 @@
 """
-Use as the entrypoint script when running locally.
+Use as the entrypoint script when orchestrating local Docker execution.
+
+This script prepares the workspace on the host, then launches a Docker container
+with the appropriate environment variables to match hosted compute execution.
 """
 
 import dataclasses
+import os
 import pathlib
+import shlex
+import signal
+import socket
+import subprocess
+import sys
 
 import roboto
+from roboto.env import RobotoEnvKey
 from roboto.domain.actions import ActionConfig
 from roboto.action_runtime import prepare_invocation_environment
 from roboto.domain.orgs import Org
-
-from .. import main
 
 from .cli import find_root_dir, Args
 
@@ -112,16 +120,59 @@ if __name__ == "__main__":
         roboto_search=roboto_search,
     )
 
-    context = roboto.InvocationContext(
-        dataset_id=dataset_id,
-        input_dir=workspace.input_dir,
-        invocation_id="inv_LOCAL_INVOCATION",
-        output_dir=workspace.output_dir,
-        input_data_manifest_file=workspace.input_data_manifest_file,
-        parameters_file=workspace.parameters_file,
-        secrets_file=workspace.secrets_file,
-        org_id=org_id,
-        roboto_client=roboto_client,
-    )
+    # Build environment variables dict
+    # These match what Roboto's internal invocation scheduler does
+    env_vars = {
+        RobotoEnvKey.DatasetId: dataset_id,
+        RobotoEnvKey.InputDir: "/workspace/input",
+        RobotoEnvKey.OutputDir: "/workspace/output",
+        RobotoEnvKey.InvocationId: "inv_LOCAL_DOCKER_INVOCATION",
+        RobotoEnvKey.OrgId: org_id,
+        RobotoEnvKey.RobotoServiceEndpoint: roboto_client.endpoint,
+        RobotoEnvKey.ActionRuntimeConfigDir: str(workspace.config_dir),
+        RobotoEnvKey.ActionInputsManifest: str(workspace.input_data_manifest_file),
+        RobotoEnvKey.ActionParametersFile: str(workspace.parameters_file),
+        RobotoEnvKey.DatasetMetadataChangesetFile: str(
+            workspace.dataset_metadata_changeset_file
+        ),
+        RobotoEnvKey.RobotoEnv: f"LOCAL ({socket.getfqdn()})",
+        # Additional parameters for local development
+        "ROBOTO_LOG_LEVEL": str(args.log_level),
+        "ROBOTO_DRY_RUN": "true" if args.dry_run else "false",
+        "ROBOTO_CONFIG_FILE": "/roboto.config.json",
+    }
 
-    main(context, log_level=args.log_level, dry_run=args.dry_run)
+    # Add all provided parameters as environment variables
+    if args.params:
+        for param_name, param_value in args.params.items():
+            env_var_name = RobotoEnvKey.for_parameter(param_name)
+            env_vars[env_var_name] = str(param_value)
+
+    cmd = [
+        "docker",
+        "run",
+        "--rm",
+        "-it",
+        "-u",
+        f"{os.getuid()}:{os.getgid()}",
+        "-v",
+        f"{os.path.expanduser('~/.roboto/config.json')}:/roboto.config.json",
+        "-v",
+        f"{workspace.input_dir.parent}:/workspace",  # Mount workspace root
+    ]
+
+    for key, value in env_vars.items():
+        cmd.extend(["-e", f"{key}={value}"])
+
+    cmd.append("{{ cookiecutter.__package_name }}:latest")  # image name
+
+    with subprocess.Popen(
+        shlex.join(cmd),
+        text=True,
+    ) as run_proc:
+        try:
+            run_proc.wait()
+        except KeyboardInterrupt:
+            run_proc.kill()
+            print("")
+            sys.exit(128 + signal.SIGINT.value)
