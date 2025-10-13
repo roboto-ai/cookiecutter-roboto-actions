@@ -8,11 +8,11 @@ This guide provides detailed information for developing Roboto Actions using thi
 - [Development Workflow](#development-workflow)
 - [Action Parameters](#action-parameters)
 - [Input Data](#input-data)
+- [Output Data](#output-data)
 - [Invoking Locally](#invoking-locally)
+- [Build and Deployment](#build-and-deployment)
 
 ## Project Structure
-
-### Key Files
 
 #### `main.py`
 
@@ -44,7 +44,7 @@ Defines action metadata including:
 - Action parameters (see [Action Parameters](#action-parameters))
 - Whether the action requires input data to be pre-downloaded into the working directory
 
-See [ActionConfig](https://docs.roboto.ai/reference/python-sdk/roboto/domain/actions/index.html#roboto.domain.actions.ActionConfig) for details.
+See [ActionConfig](https://docs.roboto.ai/reference/python-sdk/roboto/domain/actions/index.html#roboto.domain.actions.ActionConfig) for details, as well as relevant documentation on https://docs.roboto.ai.
 
 #### `Dockerfile`
 
@@ -118,6 +118,11 @@ These dependencies are installed in your local virtual environment but are not i
 - **Type hints**: Use type hints for better code clarity and IDE support
 - **Logging**: Use the provided `log_level` parameter to control verbosity
 - **Dry-run support**: Use the `dry_run` flag to enable local invocation without side effects
+
+**Dry-run mode**: When `--dry-run` is specified, consider gating operations that have side effects, such as:
+- Uploading files to Roboto datasets
+- Modifying metadata
+- Making external API calls that are not idempotent
 
 ## Action Parameters
 
@@ -198,6 +203,75 @@ def main(
     ...
 ```
 
+### Parameter Type Handling
+
+**Important**: All parameter values are received as strings, regardless of the intended type. Your action code is responsible for parsing and validating parameter values.
+
+**Parsing different types**:
+```python
+import json
+
+def main(
+    context: roboto.InvocationContext,
+    log_level: int = logging.INFO,
+    dry_run: bool = False,
+) -> None:
+    # Integer parameter
+    threshold = int(context.get_parameter("threshold"))
+
+    # Float parameter
+    confidence = float(context.get_parameter("confidence"))
+
+    # Boolean parameter
+    enable_feature = context.get_parameter("enable_feature").lower() == "true"
+
+    # JSON/complex parameter
+    config = json.loads(context.get_parameter("config"))
+
+    # List parameter (comma-separated)
+    tags = context.get_parameter("tags").split(",")
+```
+
+**Best practice**: Always validate and handle parsing errors to provide clear error messages:
+```python
+def main(
+    context: roboto.InvocationContext,
+    log_level: int = logging.INFO,
+    dry_run: bool = False,
+) -> None:
+    try:
+        threshold = int(context.get_parameter("threshold"))
+        if threshold < 0 or threshold > 100:
+            raise ValueError("threshold must be between 0 and 100")
+    except ValueError as e:
+        raise ValueError(f"Invalid threshold parameter: {e}")
+```
+
+### Accessing Runtime Information: InvocationContext vs Environment Variables
+
+**Recommended approach**: Always use `InvocationContext` methods to access runtime information such as parameters, input data, and working directories.
+
+While the Roboto platform sets various `ROBOTO_*` environment variables, these are implementation details that may change between versions. Avoid relying on them directly in your action code.
+
+**Example of recommended usage**:
+```python
+import os
+import roboto
+
+def main(
+    context: roboto.InvocationContext,
+    log_level: int = logging.INFO,
+    dry_run: bool = False,
+) -> None:
+    # ✅ Recommended: Use InvocationContext methods
+    threshold = context.get_parameter("threshold")
+    action_input = context.get_input()
+    dataset_id = context.dataset_id
+
+    # ❌ Avoid: Accessing other ROBOTO_* environment variables directly
+    # param = os.environ["ROBOTO_PARAM_THRESHOLD"]  # Don't do this
+```
+
 ## Input Data
 
 ### Overview
@@ -205,6 +279,25 @@ def main(
 Most actions operate on data uploaded to Roboto, and many upload results back to Roboto. Managing input data to seamlessly enable both local development and production usage is critical.
 
 Roboto provides two approaches for working with input data:
+
+### Configuring Input Data Download
+
+The `requires_downloaded_inputs` field in `action.json` controls whether input data  are automatically downloaded before your action runs.
+
+**Note:** This argument only has an effect if input data is specified as a file query or a dataset_id/file paths combination.
+
+**`requires_downloaded_inputs: false`** (Default)
+- Only file metadata is available via `context.get_input()`
+- File data are **not** downloaded to the local filesystem
+- Use this when your action only needs file metadata (paths, sizes, timestamps) or queries for data at runtime
+- **Performance benefit**: Avoids download overhead when files aren't needed
+- **Example use cases**: Cataloging files, filtering by metadata, using the SDK more directly for data access. 
+
+**`requires_downloaded_inputs: true`** 
+- Input files are downloaded to `ROBOTO_INPUT_DIR` before the action executes
+- Use this when your action needs to read file contents directly
+- Files are accessible via the filesystem at paths provided by `context.get_input()`
+- **Example use cases**: Processing log files, analyzing images, parsing configuration files
 
 ### Approach A: Input Data Specified at Invocation Time
 
@@ -244,8 +337,29 @@ def main(
 
 **Example local invocation**:
 ```bash
+# Query for topics using RoboQL
 $ ./scripts/run.sh --topic-query "msgpaths[cpuload.load].max > 0.9"
+
+# Query for files using RoboQL
+$ ./scripts/run.sh --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
 ```
+
+#### Using Queries to Specify Input Data
+
+When using `--topic-query` or `--file-query`, you can use RoboQL queries to match files in a dataset. The query syntax allows you to filter resources based on their attributes, as well as based on their relationships with other resources.
+
+Refer to [RoboQL documentation](https://docs.roboto.ai/roboql/index.html) for the definitive guide, and use the Roboto web application's Search UI to test queries and inspect result sets.
+
+**Examples**:
+```bash
+# All files with .log extension
+$ ./scripts/run.sh --file-query "path LIKE '%.log'"
+
+# Topics uploaded to a specific dataset, within a specific time range
+$ ./scripts/run.sh --topic-query "TODO"
+```
+
+**Important**: Queries match files already uploaded to Roboto and topics already ingested from those files, not local filesystem files.
 
 ### Approach B: Query for Data at Runtime
 
@@ -268,6 +382,41 @@ def main(
 ```
 
 **When to use**: This approach is most common for actions performing batch processing that will be invoked manually, with no changes expected in the query used to gather data. Prefer using [Approach A](#approach-a-input-data-specified-at-invocation-time) in general, as it allows you to more flexibly define how input data is selected, including the use of `LIMIT` when testing.
+
+## Output Data
+
+### Overview
+
+Actions often need to write output files, such as analysis results, processed data, or generated reports. Understanding how output files are handled in different execution environments is important for developing and testing your action.
+
+### Writing Output Files
+
+Write output files to the directory specified by `InvocationContext.output_dir`. This directory is available in both local and hosted execution environments.
+
+**Example**:
+```python
+import roboto
+
+def main(
+    context: roboto.InvocationContext,
+    log_level: int = logging.INFO,
+    dry_run: bool = False,
+) -> None:
+    output_dir = context.output_dir
+    output_path = output_dir / "results.json"
+
+    output_path.write_text("Hello, world!")
+```
+
+### Automatic Upload Behavior
+
+**Hosted Platform**: When your action runs on Roboto's hosted platform, files written to the output directory are automatically uploaded to the dataset specified by `InvocationContext.dataset_id` after the action completes successfully.
+
+**Local Invocation**: When invoked locally, files written to the output directory (typically `.workspace/output/`) are **not** automatically uploaded. You can inspect them locally for testing and debugging purposes.
+
+### Advanced Output Control
+
+For more control over output uploads, such as uploading files to specific locations or with custom metadata, use the Roboto Python SDK directly. See the [Roboto Python SDK documentation](https://docs.roboto.ai/reference/python-sdk.html) for up-to-date documentation.
 
 ## Invoking Locally
 
@@ -293,23 +442,19 @@ When you run `./scripts/run.sh`:
 2. **Prepare**: Workspace directories are created on your host machine
 3. **Download**: Input data is downloaded if specified (`requires_downloaded_inputs` in `action.json`)
 4. **Launch**: A Docker container is launched with:
-   - Your workspace mounted at `/workspace`
+   - Your workspace mounted at `/.workspace`
    - Your Roboto config mounted at `/roboto.config.json`
    - All necessary environment variables set
    - Your user/group ID to ensure proper file permissions
 5. **Execute**: The action executes inside the container
 
-### Workspace Structure
+### Workspace
 
-When invoking locally, the following directories are used:
+Local invocation creates a `.workspace/` directory in the root of the action repo for temporary files, input data, and output. This directory is used only for local development and should not be committed to version control. It is cleared between invocations.
 
-- `workspace/`: Working directory for temporary files (Git-ignored)
-- `workspace/input/`: Input data downloaded as part of setup, if applicable
-- `workspace/output/`: Output data written by your action, if any
+## Build and Deployment
 
-### Build and Deployment
-
-#### Building the Docker Image
+### Building the Docker Image
 
 ```bash
 $ ./scripts/build.sh
@@ -317,7 +462,7 @@ $ ./scripts/build.sh
 
 Builds the Docker image locally. The image is tagged with your action name.
 
-#### Deploying to Roboto Platform
+### Deploying to Roboto Platform
 
 ```bash
 $ ./scripts/deploy.sh

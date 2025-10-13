@@ -60,7 +60,9 @@ class Args(argparse.Namespace):
         return None
 
     def __parse(self, args: collections.abc.Sequence[str] | None):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            prog="local_invoke", description="Invoke an action locally"
+        )
 
         parser.add_argument(
             "-p",
