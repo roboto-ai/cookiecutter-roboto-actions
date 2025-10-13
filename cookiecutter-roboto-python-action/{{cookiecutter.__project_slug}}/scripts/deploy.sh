@@ -11,6 +11,9 @@ if [ ! -f "$PACKAGE_ROOT/.venv/bin/roboto" ]; then
     exit 1
 fi
 
+echo "Building container image"
+$SCRIPTS_ROOT/build.sh --quiet
+
 # Set org_id to $ROBOTO_ORG_ID if defined, else the first argument passed to this script
 org_id=${ROBOTO_ORG_ID:-}
 if [ $# -gt 0 ]; then

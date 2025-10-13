@@ -8,7 +8,7 @@ with the appropriate environment variables to match hosted compute execution.
 import dataclasses
 import os
 import pathlib
-import shlex
+import shutil
 import signal
 import socket
 import subprocess
@@ -37,14 +37,26 @@ class Workspace:
     dataset_metadata_changeset_file: pathlib.Path
 
 
-def setup_workspace(workspare_dir: pathlib.Path) -> Workspace:
-    input_dir = workspare_dir / "input"
+def empty_workspace(workspace_root: pathlib.Path):
+    print("✔ Emptying workspace")
+    if workspace_root.exists():
+        for item in workspace_root.iterdir():
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+
+
+def setup_workspace(workspace_root: pathlib.Path) -> Workspace:
+    print("✔ Setting up workspace")
+
+    input_dir = workspace_root / "input"
     input_dir.mkdir(parents=True, exist_ok=True)
 
-    output_dir = workspare_dir / "output"
+    output_dir = workspace_root / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    config_dir = workspare_dir / ".roboto"
+    config_dir = workspace_root / ".roboto"
     config_dir.mkdir(parents=True, exist_ok=True)
 
     metadata_dir = output_dir / ".metadata"
@@ -108,6 +120,7 @@ if __name__ == "__main__":
         else roboto.InvocationDataSource.unspecified().data_source_id
     )
 
+    empty_workspace(args.workspace_dir)
     workspace = setup_workspace(args.workspace_dir)
 
     invocation_input = args.parse_input_spec()
@@ -184,6 +197,7 @@ if __name__ == "__main__":
 
     cmd.append("{{ cookiecutter.__package_name }}:latest")  # image name
 
+    print("✔ Running action")
     with subprocess.Popen(
         cmd,
         text=True,

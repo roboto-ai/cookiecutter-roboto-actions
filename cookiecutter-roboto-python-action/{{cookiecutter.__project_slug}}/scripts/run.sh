@@ -13,7 +13,7 @@ PACKAGE_ROOT=$(dirname "${SCRIPTS_ROOT}")
 
 # Always (re)build the container image
 # Layer caching makes this fast when nothing but source code has changed
-echo "### Building container image ###"
+echo "✔ Building container image"
 $SCRIPTS_ROOT/build.sh --quiet
 
 # Workspace preparation requires the roboto SDK
@@ -22,6 +22,5 @@ if [ ! -f "$PACKAGE_ROOT/.venv/bin/python" ]; then
     exit 1
 fi
 
-echo "### Running ###"
 # Run script which will exec docker run
 $PACKAGE_ROOT/.venv/bin/python -m src.{{ cookiecutter.__package_name }}.bin.cli_entrypoint "$@"
