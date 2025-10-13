@@ -225,3 +225,7 @@ if __name__ == "__main__":
             run_proc.kill()
             print("")
             sys.exit(128 + signal.SIGINT.value)
+        finally:
+            # Always delete secrets file to avoid it sitting around on disk.
+            # This is not a true security measure, just good housekeeping.
+            workspace.secrets_file.unlink(missing_ok=True)
