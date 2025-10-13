@@ -15,6 +15,7 @@ import subprocess
 import sys
 
 import roboto
+from roboto.cli.validation import pydantic_validation_handler
 from roboto.env import RobotoEnvKey
 from roboto.domain.actions import ActionConfig
 from roboto.action_runtime import prepare_invocation_environment
@@ -94,7 +95,8 @@ if __name__ == "__main__":
             "Could not find 'action.json' file providing configuration for this action."
         )
 
-    action_config = ActionConfig.model_validate_json(ACTION_JSON_FILE.read_text())
+    with pydantic_validation_handler("action.json"):
+        action_config = ActionConfig.model_validate_json(ACTION_JSON_FILE.read_text())
 
     roboto_client = (
         roboto.RobotoClient.for_profile(args.profile)
