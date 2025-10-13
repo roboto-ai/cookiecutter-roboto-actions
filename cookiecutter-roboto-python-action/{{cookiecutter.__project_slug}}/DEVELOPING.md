@@ -147,6 +147,11 @@ Example:
             "required": true
         },
         {
+            "name": "labeling_service_api_key",
+            "description": "API key for the labeling service",
+            "required": true
+        },
+        {
             "name": "output_format",
             "description": "Output format (json or csv)",
             "default": "json"
@@ -155,11 +160,23 @@ Example:
 }
 ```
 
+### Passing Secrets Through Parameters
+
+Roboto supports passing secrets to actions that have been registered in Roboto's secrets store.
+
+Parameters that receive secret values are defined in `action.json` like any other parameter. When invoking the action, format the value as `roboto-secret://<secret-name>`. At runtime, use [`InvocationContext.get_secret_parameter()`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_secret_parameter) to resolve the secret to its actual value.
+
+Example:
+```bash
+$ roboto secrets write my-labeling-service-api-key API_KEY_VALUE
+$ ./scripts/run.sh --parameter labeling_service_api_key="roboto-secret://my-labeling-service-api-key"
+```
+
 ### Using Parameters in Your Action
 
 Action parameters are passed as environment variables in both hosted compute and local Docker execution.
 
-**Local invocation**: When you run `./scripts/run.sh --parameter threshold=60`, the orchestration script converts your CLI arguments into environment variables before launching the Docker container.
+**Local invocation**: When you run `./scripts/run.sh --parameter threshold=60 --parameter labeling_service_api_key="roboto-secret://my-labeling-service-api-key"`, the orchestration script converts your CLI arguments into environment variables before launching the Docker container.
 
 **Hosted compute**: When run by Roboto on its platform, the platform infrastructure sets the same environment variables.
 
@@ -177,6 +194,7 @@ def main(
 ) -> None:
     threshold = context.get_parameter("threshold")
     output_format = context.get_optional_parameter("output_format", "json")
+    labeling_service_api_key = context.get_secret_parameter("labeling_service_api_key")
     ...
 ```
 
