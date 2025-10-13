@@ -4,11 +4,6 @@
             "path": "./cookiecutter-roboto-python-action",
             "title": "Python Action",
             "description": "[Recommended] Action template tailored for use with Python. Initialized with the Roboto Python SDK."
-        },
-        "Roboto generic action": {
-            "path": "./cookiecutter-roboto-generic-action",
-            "title": "Generic Action",
-            "description": "Generic action template. Makes no assumption about action authoring language."
         }
     }
 }
