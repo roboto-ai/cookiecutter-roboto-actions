@@ -22,7 +22,8 @@ def main(
             log.info("  Files:")
             for file, local_path in action_input.files:
                 log.info(
-                    "    %s (downloaded: %s)",
+                    "    (%s) %s (is downloaded into working directory: %s)",
+                    file.file_id,
                     file.relative_path,
                     local_path is not None,
                 )
@@ -30,4 +31,9 @@ def main(
         if action_input.topics:
             log.info("  Topics:")
             for topic in action_input.topics:
-                log.info("    %s", topic)
+                log.info(
+                    "    (%s) %s extracted from %s",
+                    topic.topic_id,
+                    topic.topic_name,
+                    topic.association.association_id,
+                )

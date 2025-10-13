@@ -2,4 +2,4 @@
 # Python packages to install into this action's virtual environment  #
 # that are only required at runtime.                                 #
 ######################################################################
-roboto
+roboto==0.29.0rc0

@@ -44,16 +44,23 @@ def setup_workspace(workspare_dir: pathlib.Path) -> Workspace:
     output_dir = workspare_dir / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    config_dir = workspare_dir / ".roboto" / "action-runtime"
+    config_dir = workspare_dir / ".roboto"
     config_dir.mkdir(parents=True, exist_ok=True)
 
     metadata_dir = output_dir / ".metadata"
     metadata_dir.mkdir(parents=True, exist_ok=True)
 
     parameters_file = config_dir / "action_parameters.json"
+    parameters_file.touch(exist_ok=True)
+
     secrets_file = config_dir / "secrets.json"
+    secrets_file.touch(exist_ok=True)
+
     input_data_manifest_file = input_dir / "action_inputs_manifest.json"
+    input_data_manifest_file.touch(exist_ok=True)
+
     dataset_metadata_changeset_file = metadata_dir / "dataset_metadata_changeset.json"
+    dataset_metadata_changeset_file.touch(exist_ok=True)
 
     return Workspace(
         input_dir=input_dir,
@@ -122,20 +129,31 @@ if __name__ == "__main__":
 
     # Build environment variables dict
     # These match what Roboto's internal invocation scheduler does
+    container_workspace_root = pathlib.Path(f"/{workspace.input_dir.parent.name}")
+
+    def to_container_path(host_path: pathlib.Path) -> str:
+        return str(container_workspace_root / host_path.relative_to(args.workspace_dir))
+
     env_vars = {
-        RobotoEnvKey.DatasetId: dataset_id,
-        RobotoEnvKey.InputDir: "/workspace/input",
-        RobotoEnvKey.OutputDir: "/workspace/output",
-        RobotoEnvKey.InvocationId: "inv_LOCAL_DOCKER_INVOCATION",
-        RobotoEnvKey.OrgId: org_id,
-        RobotoEnvKey.RobotoServiceEndpoint: roboto_client.endpoint,
-        RobotoEnvKey.ActionRuntimeConfigDir: str(workspace.config_dir),
-        RobotoEnvKey.ActionInputsManifest: str(workspace.input_data_manifest_file),
-        RobotoEnvKey.ActionParametersFile: str(workspace.parameters_file),
-        RobotoEnvKey.DatasetMetadataChangesetFile: str(
+        RobotoEnvKey.DatasetId.value: dataset_id,
+        RobotoEnvKey.InputDir.value: to_container_path(workspace.input_dir),
+        RobotoEnvKey.OutputDir.value: to_container_path(workspace.output_dir),
+        RobotoEnvKey.InvocationId.value: "inv_LOCAL_DOCKER_INVOCATION",
+        RobotoEnvKey.OrgId.value: org_id,
+        RobotoEnvKey.RobotoServiceEndpoint.value: roboto_client.endpoint,
+        RobotoEnvKey.ActionRuntimeConfigDir.value: to_container_path(
+            workspace.config_dir
+        ),
+        RobotoEnvKey.ActionInputsManifest.value: to_container_path(
+            workspace.input_data_manifest_file
+        ),
+        RobotoEnvKey.ActionParametersFile.value: to_container_path(
+            workspace.parameters_file
+        ),
+        RobotoEnvKey.DatasetMetadataChangesetFile.value: to_container_path(
             workspace.dataset_metadata_changeset_file
         ),
-        RobotoEnvKey.RobotoEnv: f"LOCAL ({socket.getfqdn()})",
+        RobotoEnvKey.RobotoEnv.value: f"LOCAL ({socket.getfqdn()})",
         # Additional parameters for local development
         "ROBOTO_LOG_LEVEL": str(args.log_level),
         "ROBOTO_DRY_RUN": "true" if args.dry_run else "false",
@@ -158,7 +176,7 @@ if __name__ == "__main__":
         "-v",
         f"{os.path.expanduser('~/.roboto/config.json')}:/roboto.config.json",
         "-v",
-        f"{workspace.input_dir.parent}:/workspace",  # Mount workspace root
+        f"{workspace.input_dir.parent}:/{workspace.input_dir.parent.name}",  # Mount workspace root
     ]
 
     for key, value in env_vars.items():
@@ -167,7 +185,7 @@ if __name__ == "__main__":
     cmd.append("{{ cookiecutter.__package_name }}:latest")  # image name
 
     with subprocess.Popen(
-        shlex.join(cmd),
+        cmd,
         text=True,
     ) as run_proc:
         try:
