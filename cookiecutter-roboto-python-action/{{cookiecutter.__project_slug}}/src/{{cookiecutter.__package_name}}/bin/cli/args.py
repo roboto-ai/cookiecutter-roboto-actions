@@ -69,6 +69,7 @@ class Args(argparse.Namespace):
             dest="params",
             nargs="*",
             action=KeyValuePairsAction,
+            default=dict(),
             help=(
                 "Zero or more `<parameter_name>=<parameter_value>` pairs. "
                 "`parameter_value` is parsed as a string."

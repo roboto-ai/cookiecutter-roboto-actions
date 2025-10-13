@@ -87,6 +87,17 @@ def setup_workspace(workspace_root: pathlib.Path) -> Workspace:
     )
 
 
+def raise_if_provided_parameter_not_specified_in_action_config(
+    action_config: ActionConfig, provided: set[str]
+):
+    known = set(param.name for param in action_config.parameters)
+    unknown = provided - known
+    if unknown:
+        raise ValueError(
+            f"The following parameter(s) are not defined in action.json: {', '.join(sorted(unknown))}"
+        )
+
+
 if __name__ == "__main__":
     args = Args()
 
@@ -97,6 +108,10 @@ if __name__ == "__main__":
 
     with pydantic_validation_handler("action.json"):
         action_config = ActionConfig.model_validate_json(ACTION_JSON_FILE.read_text())
+
+    raise_if_provided_parameter_not_specified_in_action_config(
+        action_config, set(args.params.keys())
+    )
 
     roboto_client = (
         roboto.RobotoClient.for_profile(args.profile)
