@@ -382,12 +382,12 @@ The `requires_downloaded_inputs` field in [`action.json`](action.json) controls 
 
 **Note:** This argument only has an effect if input is specified as a file query or a dataset_id/file paths combination.
 
-**`requires_downloaded_inputs: false`** (Default)
-Only file metadata ([instances of `roboto.File`](https://docs.roboto.ai/reference/python-sdk/roboto/domain/files/file/index.html#roboto.domain.files.file.File)) is available via `context.get_input().files`. `local_path` will always equal `None` in tuples in that collection.
-
-**`requires_downloaded_inputs: true`** 
+**`requires_downloaded_inputs: true`** (Default)
 - Input files are downloaded to `ROBOTO_INPUT_DIR` ([`InvocationContext::input_dir`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.input_dir)) before the action executes.
-- Files are accessible via the filesystem at paths provided by `context.get_input()`
+- Files are accessible via the filesystem at paths provided by `context.get_input()`.
+
+**`requires_downloaded_inputs: false`**
+Only file metadata ([instances of `roboto.File`](https://docs.roboto.ai/reference/python-sdk/roboto/domain/files/file/index.html#roboto.domain.files.file.File)) is available via `context.get_input().files`. `local_path` will always equal `None` in tuples in that collection.
 
 ### Approach B: Query for Data at Runtime
 
