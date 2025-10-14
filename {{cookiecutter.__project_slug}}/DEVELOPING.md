@@ -307,9 +307,9 @@ def main(
     action_input = context.get_input()
 
     # Iterate through downloaded input files
-    for file_record, local_path in action_input.files:
-        print(f"Processing file: {file_record.relative_path}")
-        print(f"  File ID: {file_record.file_id}")
+    for file, local_path in action_input.files:
+        print(f"Processing file: {file.relative_path}")
+        print(f"  File ID: {file.file_id}")
         print(f"  Local path: {local_path}")
 ```
 {% else %}
@@ -338,7 +338,7 @@ def main(
 
         # Process the DataFrame
         # Example: Filter data based on conditions
-        high_load = df[df['cpu.load'] > 0.8]
+        high_load = df[df['cpuload.load'] > 0.8]
         print(f"  Found {len(high_load)} records with high CPU load")
 ```
 {% endif %}
@@ -355,7 +355,7 @@ $ ./scripts/run.sh --dataset-id ds_123 --file-paths "logs/*.log"
 {% else %}
 ```bash
 # Query topics by metrics
-$ ./scripts/run.sh --topic-query "msgpaths[cpu.load].max > 0.9"
+$ ./scripts/run.sh --topic-query "msgpaths[cpuload.load].max > 0.9"
 
 # Query topics extracted from files uploaded to a specific dataset
 $ ./scripts/run.sh --topic-query "file.dataset.id=ds_123"
@@ -427,14 +427,14 @@ def main(
     roboto_search = roboto.RobotoSearch.for_roboto_client(context.roboto_client)
 
     # Find topics matching a query
-    for topic in roboto_search.find_topics("msgpaths[cpu.load].max > 0.9"):
+    for topic in roboto_search.find_topics("msgpaths[cpuload.load].max > 0.9"):
         print(f"Processing topic: {topic.topic_name}")
 
         # Fetch topic data efficiently
         df = topic.get_data_as_df()
 
         # Process the data
-        high_load_records = df[df['cpu.load'] > 0.9]
+        high_load_records = df[df['cpuload.load'] > 0.9]
         print(f"  Found {len(high_load_records)} high-load records")
 
         # You can also fetch data for specific time ranges

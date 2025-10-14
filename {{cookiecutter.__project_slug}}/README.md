@@ -50,7 +50,7 @@ $ ./scripts/run.sh --file-query "dataset_id=ds_abc123 AND path LIKE 'logs/%.log'
 Example invocation:
 ```bash
 # Process topics matching a RoboQL query
-$ ./scripts/run.sh --topic-query "msgpaths[cpu.load].max > 0.9"
+$ ./scripts/run.sh --topic-query "msgpaths[cpuload.load].max > 0.9"
 ```
 {% endif %}
 

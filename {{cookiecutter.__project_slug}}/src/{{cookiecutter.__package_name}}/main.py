@@ -19,11 +19,11 @@ def main(
 {% if cookiecutter.__action_type == "file-based" %}
     if action_input.files:
         log.info("Processing %d input file(s):", len(action_input.files))
-        for file_record, local_path in action_input.files:
+        for file, local_path in action_input.files:
             log.info(
                 "  File: %s (ID: %s)",
-                file_record.relative_path,
-                file_record.file_id,
+                file.relative_path,
+                file.file_id,
             )
 
             if local_path:
