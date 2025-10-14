@@ -100,6 +100,7 @@ def raise_if_provided_parameter_not_specified_in_action_config(
 
 if __name__ == "__main__":
     args = Args()
+    args.parse_from_sys_argv()
 
     if not ACTION_JSON_FILE.exists():
         raise FileNotFoundError(
@@ -188,7 +189,7 @@ if __name__ == "__main__":
         "ROBOTO_LOG_LEVEL": str(args.log_level),
         "ROBOTO_DRY_RUN": "true" if args.dry_run else "false",
         "ROBOTO_CONFIG_FILE": "/roboto.config.json",
-        "HOME": str(args.workspace_dir)
+        "HOME": str(args.workspace_dir),
     }
 
     # Add all provided parameters as environment variables

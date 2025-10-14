@@ -22,6 +22,13 @@ def find_root_dir(signal_file_name: str = "action.json"):
 
 
 class Args(argparse.Namespace):
+    """Prop bag for collected command-line arguments for local invocation.
+
+    Warning:
+        Do not customize this class for individual actions.
+        CLI argument customizations only affect local invocation and will not apply on Roboto's compute platform.
+    """
+
     params: dict[str, str]
     dry_run: bool
     log_level: int
@@ -32,10 +39,6 @@ class Args(argparse.Namespace):
     topic_query: str | None
     org_id: str | None
     profile: str | None
-
-    def __init__(self, args: collections.abc.Sequence[str] | None = None):
-        super().__init__()
-        self.__parse(args)
 
     def parse_input_spec(self) -> InvocationInput | None:
         if self.file_query is not None or self.topic_query is not None:
@@ -59,7 +62,9 @@ class Args(argparse.Namespace):
 
         return None
 
-    def __parse(self, args: collections.abc.Sequence[str] | None):
+    def parse_from_sys_argv(
+        self, args: collections.abc.Sequence[str] | None = None
+    ) -> None:
         parser = argparse.ArgumentParser(
             prog="local_invoke", description="Invoke an action locally"
         )
