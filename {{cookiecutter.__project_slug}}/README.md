@@ -10,7 +10,6 @@
 
 - **Docker** (Engine 19.03+): Local invocation always runs in Docker for production parity
 - **Python 3**: A supported version (see [.python-version](.python-version))
-- **Roboto Programmatic Access**: You must be setup to [access Roboto programmatically](https://docs.roboto.ai/getting-started/programmatic-access.html)
 
 ```bash
 $ docker --version
@@ -25,6 +24,11 @@ Set up a virtual environment and install dependencies:
 $ ./scripts/setup.sh
 ```
 
+You must be setup to [access Roboto programmatically](https://docs.roboto.ai/getting-started/programmatic-access.html). Verify with:
+```bash
+$ .venv/bin/roboto users whoami
+```
+
 ### Deployment
 
 Build and deploy to the Roboto Platform:
@@ -36,6 +40,21 @@ $ ./scripts/deploy.sh
 
 ### Local Action Invocation
 
+{% if cookiecutter.__action_type == "file-based" %}
+Example invocation:
+```bash
+# Process files matching a RoboQL query
+$ ./scripts/run.sh --file-query "dataset_id=ds_abc123 AND path LIKE 'logs/%.log'"
+```
+{% else %}
+Example invocation:
+```bash
+# Process topics matching a RoboQL query
+$ ./scripts/run.sh --topic-query "msgpaths[cpu.load].max > 0.9"
+```
+{% endif %}
+
+Full usage:
 ```bash
 $ ./scripts/run.sh --help
 usage: local_invoke [-h] [-p [<PARAMETER_NAME>=<PARAMETER_VALUE> ...]]

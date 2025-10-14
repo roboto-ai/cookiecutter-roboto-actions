@@ -41,7 +41,7 @@ if [ $image_push_ret_code -ne 0 ]; then
     exit 1
 fi
 
-echo "Creating {{ cookiecutter.__package_name }} action"
+echo "Creating/updating {{ cookiecutter.__package_name }} action"
 create_args=(
   --from-file $PACKAGE_ROOT/action.json
   --image $image_uri

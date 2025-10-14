@@ -28,7 +28,7 @@ def main(
     dry_run: bool = False,
 ) -> None:
     # Your action logic here
-    pass
+    ...
 ```
 
 The function receives three arguments:
@@ -58,13 +58,15 @@ Specifies the Python version for this action. This file is used by [pyenv](https
 
 Update this file if you need a different Python version. Prefer a version compatible with or more recent than what's specified at repository initialization.
 
+**Important:** Keep this version in sync with the Python version specified in [`Dockerfile`](Dockerfile).
+
 ## Development Workflow
 
 ### Adding Dependencies
 
 #### Runtime Dependencies
 
-Add third-party Python libraries required at runtime by your action to `requirements.runtime.txt`.
+Add third-party Python libraries required at runtime by your action to [`requirements.runtime.txt`](requirements.runtime.txt).
 
 Example:
 ```txt
@@ -79,7 +81,7 @@ $ ./scripts/setup.sh
 
 #### System Dependencies
 
-While this action is written in Python, it runs within a Docker container defined in the `Dockerfile`.
+While this action is written in Python, it runs within a Docker container defined in [`Dockerfile`](Dockerfile).
 
 Some actions or third-party libraries require system dependencies that may be installed on your workstation but are not available in the container image.
 
@@ -103,9 +105,8 @@ Add Python-based tools used only as part of development and QA (such as linting 
 
 Example:
 ```txt
-pytest>=7.0.0
-black>=23.0.0
-mypy>=1.0.0
+pytest
+ruff
 ```
 
 These dependencies are installed in your local virtual environment but are not included in the Docker image deployed to Roboto.
@@ -128,14 +129,14 @@ These dependencies are installed in your local virtual environment but are not i
 
 ### Overview
 
-A Roboto Action can be thought of as a function. Like functions, actions can define required or optional arguments. Actions refer to these arguments as **parameters**. Parameters can be set when the action is invoked, either manually or by a Roboto Trigger.
+A Roboto Action can be compared to a function. Like functions, actions can define required or optional arguments. Actions refer to these arguments as **parameters**. Parameters can be set when the action is invoked, either manually or by a Roboto Trigger.
 
 ### Defining Parameters
 
 Parameters are defined in the `parameters` array within `action.json`. Each parameter follows the [ActionParameter](https://docs.roboto.ai/reference/python-sdk/roboto/domain/actions/action_record/index.html#roboto.domain.actions.action_record.ActionParameter) model schema.
 
 Properties:
-- `name`: Unique identifier for the parameter
+- `name`: Identifier for the parameter. Use this at runtime to lookup the parameter value.
 - `description`: Human-readable description of the parameter's purpose
 - `required`: Whether the parameter must be provided (defaults to `false`)
 - `default`: Default value if not provided (only for optional parameters)
@@ -185,10 +186,13 @@ Action parameters are passed as environment variables in both hosted compute and
 
 **Hosted compute**: When run by Roboto on its platform, the platform infrastructure sets the same environment variables.
 
-The Roboto Python SDK's [`roboto.InvocationContext`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext) provides convenient access to these parameters. See: 
-    - [get_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_parameter)
-    - [get_optional_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_optional_parameter)
-    - [get_secret_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_secret_parameter)
+The Roboto Python SDK's [`roboto.InvocationContext`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext) provides convenient access to these parameters. See:
+
+- [get_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_parameter)
+
+- [get_optional_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_optional_parameter)
+
+- [get_secret_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_secret_parameter)
 
 Example usage in `main.py`:
 ```python
@@ -205,7 +209,7 @@ def main(
 
 ### Parameter Type Handling
 
-**Important**: All parameter values are received as strings, regardless of the intended type. Your action code is responsible for parsing and validating parameter values.
+All parameter values are received as strings, regardless of the intended type. Your action code is responsible for parsing and validating parameter values.
 
 **Parsing different types**:
 ```python
@@ -239,12 +243,11 @@ def main(
     log_level: int = logging.INFO,
     dry_run: bool = False,
 ) -> None:
-    try:
-        threshold = int(context.get_parameter("threshold"))
-        if threshold < 0 or threshold > 100:
-            raise ValueError("threshold must be between 0 and 100")
-    except ValueError as e:
-        raise ValueError(f"Invalid threshold parameter: {e}")
+    threshold = int(context.get_parameter("threshold"))
+    if threshold < 0 or threshold > 100:
+        raise ValueError(
+            "Invalid threshold parameter: threshold must be between 0 and 100"
+        )
 ```
 
 ### Accessing Runtime Information: InvocationContext vs Environment Variables
@@ -280,44 +283,21 @@ Most actions operate on data uploaded to Roboto, and many upload results back to
 
 Roboto provides two approaches for working with input data:
 
-### Configuring Input Data Download
-
-The `requires_downloaded_inputs` field in `action.json` controls whether input data  are automatically downloaded before your action runs.
-
-**Note:** This argument only has an effect if input data is specified as a file query or a dataset_id/file paths combination.
-
-**`requires_downloaded_inputs: false`** (Default)
-- Only file metadata is available via `context.get_input()`
-- File data are **not** downloaded to the local filesystem
-- Use this when your action only needs file metadata (paths, sizes, timestamps) or queries for data at runtime
-- **Performance benefit**: Avoids download overhead when files aren't needed
-- **Example use cases**: Cataloging files, filtering by metadata, using the SDK more directly for data access. 
-
-**`requires_downloaded_inputs: true`** 
-- Input files are downloaded to `ROBOTO_INPUT_DIR` before the action executes
-- Use this when your action needs to read file contents directly
-- Files are accessible via the filesystem at paths provided by `context.get_input()`
-- **Example use cases**: Processing log files, analyzing images, parsing configuration files
-
-### Approach A: Input Data Specified at Invocation Time
+### Approach A: Data Specified at Invocation Time
 
 In this approach, input data is specified when the action is invoked using a RoboQL query or glob pattern that matches one or more files from a specified dataset.
 
-When an action is automatically triggered by a Roboto event (such as file upload or ingestion), the trigger specifies the input data for the invocation.
+When an action is automatically triggered by Roboto, the trigger specifies the input data for the invocation.
 
-**When to use**: This is the most common approach, and is suggested for use with actions invoked by both event-based triggers (e.g., `file_upload` or `file_ingested`) and scheduled triggers.
+**When to use:** This is the most common approach, and is suggested for use with actions invoked by both event-based triggers (e.g., file upload or ingestion) and scheduled triggers.
 
-#### Using Input Data Specified at Invocation Time
+**How to use:** The Roboto Python SDK's [`roboto.InvocationContext`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext) provides helpers for accessing this data. See [get_input()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_input) and [ActionInput](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/action_input/index.html#roboto.action_runtime.action_input.ActionInput) for more.
 
-When input data is specified at invocation, Roboto downloads it into the working directory where the action runs.
-
-The data is available via the filesystem in a directory specified by the environment variable [`ROBOTO_INPUT_DIR`](https://docs.roboto.ai/reference/python-sdk/roboto/env/index.html#roboto.env.RobotoEnvKey.InputDir).
-
-The Roboto Python SDK's [`roboto.InvocationContext`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext) provides helpers for accessing this data. See [get_input()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_input) and [ActionInput](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/action_input/index.html#roboto.action_runtime.action_input.ActionInput) for more.
-
-**Example using `get_input()`**:
+{% if cookiecutter.__action_type == "file-based" %}
+**Example: Processing Downloaded Files**
 ```python
 import roboto
+import json
 
 def main(
     context: roboto.InvocationContext,
@@ -326,46 +306,95 @@ def main(
 ) -> None:
     action_input = context.get_input()
 
-    # Access input files
+    # Iterate through downloaded input files
     for file_record, local_path in action_input.files:
-        print(file_record.file_id, local_path)
-
-    # Access input topics
-    for topic in action_input.topics:
-        df = topic.get_data_as_df()
+        print(f"Processing file: {file_record.relative_path}")
+        print(f"  File ID: {file_record.file_id}")
+        print(f"  Local path: {local_path}")
 ```
+{% else %}
+**Example: Processing Topic Data**
+```python
+import roboto
+import pandas as pd
+
+def main(
+    context: roboto.InvocationContext,
+    log_level: int = logging.INFO,
+    dry_run: bool = False,
+) -> None:
+    action_input = context.get_input()
+
+    # Iterate through input topics (no file downloads required)
+    for topic in action_input.topics:
+        print(f"Processing topic: {topic.topic_name}")
+        print(f"  Topic ID: {topic.topic_id}")
+        print(f"  Extracted from: {topic.association.association_id}")
+
+        # Fetch topic data as a pandas DataFrame
+        # This efficiently retrieves only the data you need
+        df = topic.get_data_as_df()
+        print(f"  Retrieved {len(df)} records")
+
+        # Process the DataFrame
+        # Example: Filter data based on conditions
+        high_load = df[df['cpu.load'] > 0.8]
+        print(f"  Found {len(high_load)} records with high CPU load")
+```
+{% endif %}
 
 **Example local invocation**:
+{% if cookiecutter.__action_type == "file-based" %}
 ```bash
-# Query for topics using RoboQL
-$ ./scripts/run.sh --topic-query "msgpaths[cpuload.load].max > 0.9"
-
 # Query for files using RoboQL
 $ ./scripts/run.sh --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
+
+# Specify files by dataset ID and paths
+$ ./scripts/run.sh --dataset-id ds_123 --file-paths "logs/*.log"
 ```
+{% else %}
+```bash
+# Query topics by metrics
+$ ./scripts/run.sh --topic-query "msgpaths[cpu.load].max > 0.9"
+
+# Query topics extracted from files uploaded to a specific dataset
+$ ./scripts/run.sh --topic-query "file.dataset.id=ds_123"
+
+# Query topics by name
+$ ./scripts/run.sh --topic-query "topic_name='/diagnostics/cpu'"
+
+# Combine multiple conditions
+$ ./scripts/run.sh --topic-query "file.device_id = 'ROBOT_1' AND msgpaths[battery_status.temperature].max > 80"
+```
+{% endif %}
 
 #### Using Queries to Specify Input Data
 
-When using `--topic-query` or `--file-query`, you can use RoboQL queries to match files in a dataset. The query syntax allows you to filter resources based on their attributes, as well as based on their relationships with other resources.
+When using `--topic-query` or `--file-query`, provide RoboQL to match data stored in Roboto. The query syntax allows you to filter resources based on their attributes, as well as based on their relationships with other resources.
 
 Refer to [RoboQL documentation](https://docs.roboto.ai/roboql/index.html) for the definitive guide, and use the Roboto web application's Search UI to test queries and inspect result sets.
 
-**Examples**:
-```bash
-# All files with .log extension
-$ ./scripts/run.sh --file-query "path LIKE '%.log'"
-
-# Topics uploaded to a specific dataset, within a specific time range
-$ ./scripts/run.sh --topic-query "TODO"
-```
-
 **Important**: Queries match files already uploaded to Roboto and topics already ingested from those files, not local filesystem files.
+
+#### Configuring Input Data Download
+
+The `requires_downloaded_inputs` field in [`action.json`](action.json) controls whether input data are automatically downloaded before your action runs.
+
+**Note:** This argument only has an effect if input is specified as a file query or a dataset_id/file paths combination.
+
+**`requires_downloaded_inputs: false`** (Default)
+Only file metadata ([instances of `roboto.File`](https://docs.roboto.ai/reference/python-sdk/roboto/domain/files/file/index.html#roboto.domain.files.file.File)) is available via `context.get_input().files`. `local_path` will always equal `None` in tuples in that collection.
+
+**`requires_downloaded_inputs: true`** 
+- Input files are downloaded to `ROBOTO_INPUT_DIR` ([`InvocationContext::input_dir`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.input_dir)) before the action executes.
+- Files are accessible via the filesystem at paths provided by `context.get_input()`
 
 ### Approach B: Query for Data at Runtime
 
-In this approach, the action code queries Roboto for data at runtime, enabling it to operate on any data queryable from the Roboto API.
+In this approach, action code queries Roboto for data at runtime, enabling it to operate on any data queryable from the Roboto API.
 
-**Example**:
+{% if cookiecutter.__action_type == "file-based" %}
+**Example: Query for Files at Runtime**
 ```python
 import roboto
 
@@ -375,13 +404,48 @@ def main(
     dry_run: bool = False,
 ) -> None:
     roboto_search = roboto.RobotoSearch.for_roboto_client(context.roboto_client)
-    for topic in roboto_search.find_topics("msgpaths[cpuload.load].max > 0.9"):
-        # Process topic
-        df = topic.get_data_as_df()
-        ...
-```
 
-**When to use**: This approach is most common for actions performing batch processing that will be invoked manually, with no changes expected in the query used to gather data. Prefer using [Approach A](#approach-a-input-data-specified-at-invocation-time) in general, as it allows you to more flexibly define how input data is selected, including the use of `LIMIT` when testing.
+    # Find files matching a query
+    for file in roboto_search.find_files("path LIKE '%.log' AND size < 1000000"):
+        print(f"Found file: {file.relative_path}")
+
+        # Download the file if needed
+        # local_path = context.input_dir / file.relative_path
+        # file.download(local_path)
+        # ...Process file content...
+```
+{% else %}
+**Example: Query for Topics at Runtime**
+```python
+import roboto
+
+def main(
+    context: roboto.InvocationContext,
+    log_level: int = logging.INFO,
+    dry_run: bool = False,
+) -> None:
+    roboto_search = roboto.RobotoSearch.for_roboto_client(context.roboto_client)
+
+    # Find topics matching a query
+    for topic in roboto_search.find_topics("msgpaths[cpu.load].max > 0.9"):
+        print(f"Processing topic: {topic.topic_name}")
+
+        # Fetch topic data efficiently
+        df = topic.get_data_as_df()
+
+        # Process the data
+        high_load_records = df[df['cpu.load'] > 0.9]
+        print(f"  Found {len(high_load_records)} high-load records")
+
+        # You can also fetch data for specific time ranges
+        # region_of_interest = topic.get_data_as_df(
+        #     start_time=1722870127699468923,
+        #     end_time=1722872527739168984
+        # )
+```
+{% endif %}
+
+**When to use**: This approach is most common for actions performing batch processing that will be invoked manually, with no changes expected in the query used to gather data. Prefer using [Approach A](#approach-a-input-data-specified-at-invocation-time), as it allows you to more flexibly define how input data is selected, including the use of `LIMIT` when testing.
 
 ## Output Data
 
@@ -391,7 +455,7 @@ Actions often need to write output files, such as analysis results, processed da
 
 ### Writing Output Files
 
-Write output files to the directory specified by `InvocationContext.output_dir`. This directory is available in both local and hosted execution environments.
+Write output files to the directory specified by [`InvocationContext.output_dir`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.output_dir). This directory is available in both local and hosted execution environments.
 
 **Example**:
 ```python
@@ -402,15 +466,13 @@ def main(
     log_level: int = logging.INFO,
     dry_run: bool = False,
 ) -> None:
-    output_dir = context.output_dir
-    output_path = output_dir / "results.json"
-
-    output_path.write_text("Hello, world!")
+    result = context.output_dir / "results.json"
+    result.write_text("Hello, world!")
 ```
 
 ### Automatic Upload Behavior
 
-**Hosted Platform**: When your action runs on Roboto's hosted platform, files written to the output directory are automatically uploaded to the dataset specified by `InvocationContext.dataset_id` after the action completes successfully.
+**Hosted Platform**: When invoked on Roboto's hosted platform, files written to the output directory are automatically uploaded to the dataset specified by [`InvocationContext.dataset_id`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.dataset_id) after the action completes successfully.
 
 **Local Invocation**: When invoked locally, files written to the output directory (typically `.workspace/output/`) are **not** automatically uploaded. You can inspect them locally for testing and debugging purposes.
 
@@ -430,7 +492,7 @@ Local invocation always runs in a Docker container to ensure production parity. 
 # See all available options
 $ ./scripts/run.sh --help
 
-# Specify topics to use as input (accessible via `InvocationContext::get_input().topics`) and parameters
+# Specify topics to use as input and parameters defined in action.json
 $ ./scripts/run.sh --topic-query="msgpaths[cpuload.load].max > 0.9" --parameter threshold=60 -vv
 ```
 
@@ -438,8 +500,8 @@ $ ./scripts/run.sh --topic-query="msgpaths[cpuload.load].max > 0.9" --parameter 
 
 When you run `./scripts/run.sh`:
 
-1. **Build**: The Docker image is built (or rebuilt if source or dependencies changed)
-2. **Prepare**: Workspace directories are created on your host machine
+1. **Build**: The Docker image defined by [Dockerfile](Dockerfile) is built (or rebuilt if source or dependencies changed)
+2. **Prepare**: Workspace directories are readied on your host machine.
 3. **Download**: Input data is downloaded if specified (`requires_downloaded_inputs` in `action.json`)
 4. **Launch**: A Docker container is launched with:
    - Your workspace mounted at `/.workspace`
@@ -471,7 +533,7 @@ $ ./scripts/deploy.sh
 This script:
 1. Builds the Docker image
 2. Pushes it to Roboto's container registry
-3. Creates or updates the action definition on the Roboto platform using configuration from `action.json`
+3. Creates or updates the action definition on the Roboto platform using configuration from [`action.json`](action.json)
 
 **Prerequisites**: You must have a personal access token accessible in your environment. See [Programmatic Access](https://docs.roboto.ai/getting-started/programmatic-access.html#personal-access-token) for more.
 

@@ -188,6 +188,7 @@ if __name__ == "__main__":
         "ROBOTO_LOG_LEVEL": str(args.log_level),
         "ROBOTO_DRY_RUN": "true" if args.dry_run else "false",
         "ROBOTO_CONFIG_FILE": "/roboto.config.json",
+        "HOME": str(args.workspace_dir)
     }
 
     # Add all provided parameters as environment variables

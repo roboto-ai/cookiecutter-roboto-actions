@@ -1,9 +1,13 @@
 {
-    "templates": {
-        "Roboto python action": {
-            "path": "./cookiecutter-roboto-python-action",
-            "title": "Python Action",
-            "description": "[Recommended] Action template tailored for use with Python. Initialized with the Roboto Python SDK."
-        }
-    }
+    "project_name": "Roboto Python Action",
+    "__project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
+    "__package_name": "{{ cookiecutter.__project_slug|replace('-', '_') }}",
+    "author": "Anonymous",
+    "description": "A Python-based Roboto Action",
+    "action_type": [
+        "file-based: process raw input files uploaded to Roboto", 
+        "topic-based: process topics extracted from ingested files"
+    ],
+    "__action_type": "{{ cookiecutter.action_type.split(':')[0] }}",
+    "initialize_git_repo": true
 }
