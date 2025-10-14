@@ -91,7 +91,7 @@ Local Workspace Directory:
 
   -w WORKSPACE_DIR, --workspace-dir WORKSPACE_DIR
                         Local filesystem path to workspace directory. Default:
-                        /tmp/tmp.L0MeQIZe9h/roboto-python-action/.workspace
+                        {{ cookiecutter.__project_slug }}/.workspace
 
 Global Options:
   --org-id ORG_ID       Roboto organization ID. Only necessary if you belong
