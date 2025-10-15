@@ -106,8 +106,6 @@ Global Options:
 
 ```
 
-See [DEVELOPING.md](DEVELOPING.md) for more information on local invocation and examples.
-
 ## Development
 
 See [DEVELOPING.md](DEVELOPING.md) for detailed information about developing this action, including:
