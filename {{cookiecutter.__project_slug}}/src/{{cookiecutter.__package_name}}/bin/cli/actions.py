@@ -35,11 +35,15 @@ class KeyValuePairsAction(argparse.Action):
             )
 
 
-class VerbosityAction(argparse.Action):
-    def __init__(self, option_strings, dest, **kwargs):
-        kwargs.setdefault("default", logging.ERROR)
-        kwargs.setdefault("nargs", 0)
-        super().__init__(option_strings, dest, **kwargs)
+class LogLevelAction(argparse.Action):
+    """Convert string log level choices to their corresponding logging constants."""
+
+    LEVEL_MAP = {
+        "error": logging.ERROR,
+        "warning": logging.WARNING,
+        "info": logging.INFO,
+        "debug": logging.DEBUG,
+    }
 
     def __call__(
         self,
@@ -48,6 +52,14 @@ class VerbosityAction(argparse.Action):
         values: str | collections.abc.Sequence[typing.Any] | None,
         option_string: str | None = None,
     ):
-        current_level = getattr(namespace, self.dest, logging.ERROR)
-        new_level = max(current_level - 10, logging.DEBUG)
-        setattr(namespace, self.dest, new_level)
+        if values is None:
+            return
+
+        if isinstance(values, str):
+            level_str = values.lower()
+            if level_str in self.LEVEL_MAP:
+                setattr(namespace, self.dest, self.LEVEL_MAP[level_str])
+            else:
+                parser.error(
+                    f"Invalid log level '{values}'. Choose from: {', '.join(self.LEVEL_MAP.keys())}"
+                )

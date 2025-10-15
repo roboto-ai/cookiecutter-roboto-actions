@@ -98,9 +98,9 @@ Global Options:
                         to multiple Roboto organizations.
   --profile PROFILE     Roboto profile to use. Must match a section within the
                         Roboto config.json.
-  -v, --verbose         Set increasing levels of verbosity. Only error logs
-                        are printed by default. Use -v (warn), -vv (info),
-                        -vvv (debug).
+  --log-level {error,warning,info,debug}
+                        Set the logging level. Choose from: error, warning, info, debug.
+                        Default: info.
   -d, --dry-run         Use dry_run to gate side effects like modifying Roboto
                         resources while testing locally.
 

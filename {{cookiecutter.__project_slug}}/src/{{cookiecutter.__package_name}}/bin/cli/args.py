@@ -1,11 +1,12 @@
 import argparse
 import collections.abc
+import logging
 import pathlib
 import sys
 
 from roboto.domain.actions import InvocationInput, FileSelector, DataSelector
 
-from .actions import VerbosityAction, KeyValuePairsAction
+from .actions import LogLevelAction, KeyValuePairsAction
 
 
 def find_root_dir(signal_file_name: str = "action.json"):
@@ -140,14 +141,15 @@ class Args(argparse.Namespace):
         )
 
         global_options.add_argument(
-            "-v",
-            "--verbose",
-            action=VerbosityAction,
+            "--log-level",
+            action=LogLevelAction,
             dest="log_level",
+            choices=["error", "warning", "info", "debug"],
+            default=logging.INFO,
             help=(
-                "Set increasing levels of verbosity. "
-                "Only error logs are printed by default. "
-                "Use -v (warn), -vv (info), -vvv (debug)."
+                "Set the logging level. "
+                "Choose from: error, warning, info, debug. "
+                "Default: info."
             ),
         )
 
