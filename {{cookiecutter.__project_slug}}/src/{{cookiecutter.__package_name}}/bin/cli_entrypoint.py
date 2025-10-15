@@ -130,7 +130,17 @@ if __name__ == "__main__":
                 "Please create an organization by logging into the web application (https://app.roboto.ai/) "
                 "or try specifying the --org-id argument."
             )
-        org_id = member_orgs[0].org_id
+
+        if len(member_orgs) == 1:
+            org_id = member_orgs[0].org_id
+        else:
+            formatted_org_list = "".join(
+                f"  - {org.name} ({org.org_id}){os.linesep}" for org in member_orgs
+            )
+            raise Exception(
+                f"You belong to multiple Roboto organizations:{os.linesep}{formatted_org_list}"
+                "Please specify the --org-id argument."
+            )
 
     dataset_id = (
         args.dataset_id
