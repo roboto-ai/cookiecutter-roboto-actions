@@ -527,7 +527,7 @@ Builds the Docker image locally. The image is tagged with your action name.
 ### Deploying to Roboto Platform
 
 ```bash
-$ ./scripts/deploy.sh
+$ ./scripts/deploy.sh [ROBOTO_ORG_ID]
 ```
 
 This script:
@@ -537,3 +537,4 @@ This script:
 
 **Prerequisites**: You must have a personal access token accessible in your environment. See [Programmatic Access](https://docs.roboto.ai/getting-started/programmatic-access.html#personal-access-token) for more.
 
+**Note**: If you belong to multiple Roboto organizations, specify the target organization by setting the `ROBOTO_ORG_ID` environment variable or passing the organization ID as the first argument to `deploy.sh`.

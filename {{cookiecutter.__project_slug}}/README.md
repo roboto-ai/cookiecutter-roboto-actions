@@ -35,7 +35,7 @@ Build and deploy to the Roboto Platform with the following commands:
 
 ```bash
 $ ./scripts/build.sh
-$ ./scripts/deploy.sh
+$ ./scripts/deploy.sh [ROBOTO_ORG_ID]
 ```
 
 ### Local Action Invocation
