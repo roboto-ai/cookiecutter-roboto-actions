@@ -472,7 +472,11 @@ def main(
 
 ### Automatic Upload Behavior
 
-**Hosted Platform**: When invoked on Roboto's hosted platform, files written to the output directory are automatically uploaded to the dataset specified by [`InvocationContext.dataset_id`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.dataset_id) after the action completes successfully.
+**Hosted Platform**: Files written to the output directory are automatically uploaded after successful completion. The upload destination is determined as follows:
+- If an output dataset is specified at invocation time, files are uploaded there
+- If no output dataset is specified, the platform attempts to infer it from input data:
+  - If all input data belongs to a single dataset, that dataset is used
+  - If input data spans multiple datasets, automatic upload is skipped
 
 **Local Invocation**: When invoked locally, files written to the output directory (typically `.workspace/output/`) are **not** automatically uploaded. You can inspect them locally for testing and debugging purposes.
 
