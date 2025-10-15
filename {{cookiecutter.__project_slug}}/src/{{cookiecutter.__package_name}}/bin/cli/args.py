@@ -1,6 +1,7 @@
 import argparse
 import collections.abc
 import logging
+import os
 import pathlib
 import sys
 
@@ -128,9 +129,11 @@ class Args(argparse.Namespace):
         global_options = parser.add_argument_group("Global Options")
         global_options.add_argument(
             "--org-id",
+            default=os.environ.get("ROBOTO_ORG_ID"),
             help=(
                 "Roboto organization ID. "
-                "Only necessary if you belong to multiple Roboto organizations."
+                "Only necessary if you belong to multiple Roboto organizations. "
+                "Defaults to ROBOTO_ORG_ID environment variable if set."
             ),
         )
 
