@@ -504,7 +504,7 @@ When you run `./scripts/run.sh`:
 2. **Prepare**: Workspace directories are readied on your host machine.
 3. **Download**: Input data is downloaded if specified (`requires_downloaded_inputs` in `action.json`)
 4. **Launch**: A Docker container is launched with:
-   - Your workspace mounted at `/.workspace`
+   - Your workspace mounted at its full host path (e.g., `/home/user/project/.workspace`)
    - Your Roboto config mounted at `/roboto.config.json`
    - All necessary environment variables set
    - Your user/group ID to ensure proper file permissions

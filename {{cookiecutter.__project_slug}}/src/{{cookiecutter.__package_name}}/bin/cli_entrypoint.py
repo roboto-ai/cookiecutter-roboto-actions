@@ -160,28 +160,19 @@ if __name__ == "__main__":
 
     # Build environment variables dict
     # These match what Roboto's internal invocation scheduler does
-    container_workspace_root = pathlib.Path(f"/{workspace.input_dir.parent.name}")
-
-    def to_container_path(host_path: pathlib.Path) -> str:
-        return str(container_workspace_root / host_path.relative_to(args.workspace_dir))
-
     env_vars = {
         RobotoEnvKey.DatasetId.value: dataset_id,
-        RobotoEnvKey.InputDir.value: to_container_path(workspace.input_dir),
-        RobotoEnvKey.OutputDir.value: to_container_path(workspace.output_dir),
+        RobotoEnvKey.InputDir.value: str(workspace.input_dir),
+        RobotoEnvKey.OutputDir.value: str(workspace.output_dir),
         RobotoEnvKey.InvocationId.value: "inv_LOCAL_DOCKER_INVOCATION",
         RobotoEnvKey.OrgId.value: org_id,
         RobotoEnvKey.RobotoServiceEndpoint.value: roboto_client.endpoint,
-        RobotoEnvKey.ActionRuntimeConfigDir.value: to_container_path(
-            workspace.config_dir
-        ),
-        RobotoEnvKey.ActionInputsManifest.value: to_container_path(
+        RobotoEnvKey.ActionRuntimeConfigDir.value: str(workspace.config_dir),
+        RobotoEnvKey.ActionInputsManifest.value: str(
             workspace.input_data_manifest_file
         ),
-        RobotoEnvKey.ActionParametersFile.value: to_container_path(
-            workspace.parameters_file
-        ),
-        RobotoEnvKey.DatasetMetadataChangesetFile.value: to_container_path(
+        RobotoEnvKey.ActionParametersFile.value: str(workspace.parameters_file),
+        RobotoEnvKey.DatasetMetadataChangesetFile.value: str(
             workspace.dataset_metadata_changeset_file
         ),
         RobotoEnvKey.RobotoEnv.value: f"LOCAL ({socket.getfqdn()})",
@@ -208,7 +199,7 @@ if __name__ == "__main__":
         "-v",
         f"{os.path.expanduser('~/.roboto/config.json')}:/roboto.config.json",
         "-v",
-        f"{workspace.input_dir.parent}:/{workspace.input_dir.parent.name}",  # Mount workspace root
+        f"{workspace.input_dir.parent}:{workspace.input_dir.parent}",
     ]
 
     for key, value in env_vars.items():
