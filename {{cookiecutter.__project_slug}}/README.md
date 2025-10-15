@@ -18,20 +18,20 @@ $ python3 --version
 
 ### Installation
 
-Set up a virtual environment and install dependencies:
+Set up a virtual environment and install dependencies with the following command:
 
 ```bash
 $ ./scripts/setup.sh
 ```
 
-You must be setup to [access Roboto programmatically](https://docs.roboto.ai/getting-started/programmatic-access.html). Verify with:
+You must be setup to [access Roboto programmatically](https://docs.roboto.ai/getting-started/programmatic-access.html). Verify with the following command:
 ```bash
 $ .venv/bin/roboto users whoami
 ```
 
 ### Deployment
 
-Build and deploy to the Roboto Platform:
+Build and deploy to the Roboto Platform with the following commands:
 
 ```bash
 $ ./scripts/build.sh
