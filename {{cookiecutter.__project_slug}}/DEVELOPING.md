@@ -285,7 +285,7 @@ Roboto provides two approaches for working with input data:
 
 ### Approach A: Data Specified at Invocation Time
 
-In this approach, input data is specified when the action is invoked using a RoboQL query or glob pattern that matches one or more files from a specified dataset.
+In this approach, input data is specified when the action is invoked using a RoboQL query or a glob pattern that matches one or more files from a specified dataset.
 
 When an action is automatically triggered by Roboto, the trigger specifies the input data for the invocation.
 
