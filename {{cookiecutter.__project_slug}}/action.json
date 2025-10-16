@@ -6,8 +6,5 @@
         "memory": 1024,
         "storage": 21
     },
-{%- if cookiecutter.__action_type == "file-based" %}
-    "requires_downloaded_inputs": true,
-{%- endif %}
     "parameters": []
 }
