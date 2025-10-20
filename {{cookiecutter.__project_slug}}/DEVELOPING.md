@@ -170,14 +170,14 @@ Parameters that receive secret values are defined in `action.json` like any othe
 Example:
 ```bash
 $ roboto secrets write my-labeling-service-api-key API_KEY_VALUE
-$ ./scripts/run.sh --parameter labeling_service_api_key="roboto-secret://my-labeling-service-api-key"
+$ roboto actions invoke-local --parameter labeling_service_api_key="roboto-secret://my-labeling-service-api-key"
 ```
 
 ### Using Parameters in Your Action
 
 Action parameters are passed as environment variables in both hosted compute and local Docker execution.
 
-**Local invocation**: When you run `./scripts/run.sh --parameter threshold=60 --parameter labeling_service_api_key="roboto-secret://my-labeling-service-api-key"`, the orchestration script converts your CLI arguments into environment variables before launching the Docker container.
+**Local invocation**: When you run `roboto actions invoke-local --parameter threshold=60 --parameter labeling_service_api_key="roboto-secret://my-labeling-service-api-key"`, the Roboto CLI converts your CLI arguments into environment variables before launching the Docker container.
 
 **Hosted compute**: When run by Roboto on its platform, the platform infrastructure sets the same environment variables.
 
@@ -318,24 +318,24 @@ def main(context: roboto.InvocationContext) -> None:
 {% if cookiecutter.__action_type == "file-based" %}
 ```bash
 # Query for files using RoboQL
-$ ./scripts/run.sh --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
+$ roboto actions invoke-local --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
 
 # Specify files by dataset ID and paths
-$ ./scripts/run.sh --dataset-id ds_123 --file-paths "logs/*.log"
+$ roboto actions invoke-local --dataset ds_123 --file-path "logs/file1.log" --file-path "logs/file2.log"
 ```
 {% else %}
 ```bash
 # Query topics by metrics
-$ ./scripts/run.sh --topic-query "msgpaths[cpuload.load].max > 0.9"
+$ roboto actions invoke-local --topic-query "msgpaths[cpuload.load].max > 0.9"
 
 # Query topics extracted from files uploaded to a specific dataset
-$ ./scripts/run.sh --topic-query "file.dataset.id=ds_123"
+$ roboto actions invoke-local --topic-query "file.dataset.id=ds_123"
 
 # Query topics by name
-$ ./scripts/run.sh --topic-query "topic_name='/diagnostics/cpu'"
+$ roboto actions invoke-local --topic-query "topic_name='/diagnostics/cpu'"
 
 # Combine multiple conditions
-$ ./scripts/run.sh --topic-query "file.device_id = 'ROBOT_1' AND msgpaths[battery_status.temperature].max > 80"
+$ roboto actions invoke-local --topic-query "file.device_id = 'ROBOT_1' AND msgpaths[battery_status.temperature].max > 80"
 ```
 {% endif %}
 
@@ -451,20 +451,24 @@ Local invocation always runs in a Docker container to ensure production parity. 
 
 ### Basic Usage
 
+Use the `roboto actions invoke-local` command to run your action locally:
+
 ```bash
 # See all available options
-$ ./scripts/run.sh --help
+$ roboto actions invoke-local --help
 
 # Specify topics to use as input and parameters defined in action.json
-$ ./scripts/run.sh --topic-query="msgpaths[cpuload.load].max > 0.9" --parameter threshold=60 -vv
+$ roboto actions invoke-local --topic-query="msgpaths[cpuload.load].max > 0.9" --parameter threshold=60
 ```
+
+See the [Local Action Invocation section in README.md](README.md#local-action-invocation) for complete usage documentation and examples.
 
 ### How It Works
 
-When you run `./scripts/run.sh`:
+When you run `roboto actions invoke-local`:
 
 1. **Build**: The Docker image defined by [Dockerfile](Dockerfile) is built (or rebuilt if source or dependencies changed)
-2. **Prepare**: Workspace directories are readied on your host machine.
+2. **Prepare**: Workspace directories are readied on your host machine
 3. **Download**: Input data is downloaded if specified (`requires_downloaded_inputs` in `action.json`)
 4. **Launch**: A Docker container is launched with:
    - Your workspace mounted at its full host path (e.g., `/home/user/project/.workspace`)
@@ -475,7 +479,7 @@ When you run `./scripts/run.sh`:
 
 ### Workspace
 
-Local invocation creates a `.workspace/` directory in the root of the action repo for temporary files, input data, and output. This directory is used only for local development and should not be committed to version control. It is cleared between invocations.
+Local invocation creates a `.workspace/` directory in the root of the action repo for temporary files, input data, and output. This directory is used only for local development and should not be committed to version control. It is cleared between invocations unless you use the `--preserve-workspace` flag.
 
 ## Build and Deployment
 
