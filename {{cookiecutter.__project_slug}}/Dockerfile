@@ -22,4 +22,4 @@ COPY src/{{ cookiecutter.__package_name }}/ ./{{ cookiecutter.__package_name }}
 # and to maximize context captured in logs if this action fails.
 ENV PYTHONUNBUFFERED=0
 
-ENTRYPOINT [ "python", "-m", "{{ cookiecutter.__package_name }}.bin.docker_entrypoint" ]
+ENTRYPOINT [ "python", "-m", "{{ cookiecutter.__package_name }}.bin.entrypoint" ]

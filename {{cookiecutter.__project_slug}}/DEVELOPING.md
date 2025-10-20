@@ -22,23 +22,18 @@ Simple actions may be defined in this single file, while complex actions benefit
 
 **Expected signature**:
 ```python
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     # Your action logic here
     ...
 ```
 
-The function receives three arguments:
-1. `context: roboto.action_runtime.InvocationContext` - Provides access to parameters, input data, working directories, and organization/dataset information
-2. `log_level: int` - Logging verbosity (e.g., `logging.INFO`, `logging.DEBUG`)
-3. `dry_run: bool` - Whether to run in dry-run mode. Action developers should use this flag to gate side effects like modifying Roboto resources during local invocation.
+The function receives one argument: `context: roboto.action_runtime.InvocationContext`.
+
+`InvocationContext` provides access to parameters, input data, working directories, organization/dataset information, and runtime configuration. Use `context.is_dry_run` to check if the action is running in dry-run mode. Use `context.log_level` to access the logging verbosity level (e.g., `logging.INFO`, `logging.DEBUG`).
 
 #### `action.json`
 
-Defines action metadata including:
+Defines action configuration including:
 - Action name and description
 - Compute requirements (vCPU, memory, storage)
 - Action parameters (see [Action Parameters](#action-parameters))
@@ -117,10 +112,10 @@ These dependencies are installed in your local virtual environment but are not i
 - **Keep `main.py` focused**: It should orchestrate your action's workflow, not contain all implementation details
 - **Use modules for complex logic**: Break complex actions into separate modules under `src/{{cookiecutter.__package_name}}/`
 - **Type hints**: Use type hints for better code clarity and IDE support
-- **Logging**: Use the provided `log_level` parameter to control verbosity
-- **Dry-run support**: Use the `dry_run` flag to enable local invocation without side effects
+- **Logging**: Use `context.log_level` to access the logging verbosity level. Use it to set the logging level in your action code via `logger.setLevel(context.log_level)`.
+- **Dry-run support**: Use `context.is_dry_run` to enable local invocation without side effects
 
-**Dry-run mode**: When `--dry-run` is specified, consider gating operations that have side effects, such as:
+**Dry-run mode**: When `context.is_dry_run` is `True`, consider gating operations that have side effects, such as:
 - Uploading files to Roboto datasets
 - Modifying metadata
 - Making external API calls that are not idempotent
@@ -196,11 +191,7 @@ The Roboto Python SDK's [`roboto.InvocationContext`](https://docs.roboto.ai/refe
 
 Example usage in `main.py`:
 ```python
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     threshold = context.get_parameter("threshold")
     output_format = context.get_optional_parameter("output_format", "json")
     labeling_service_api_key = context.get_secret_parameter("labeling_service_api_key")
@@ -215,11 +206,7 @@ All parameter values are received as strings, regardless of the intended type. Y
 ```python
 import json
 
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     # Integer parameter
     threshold = int(context.get_parameter("threshold"))
 
@@ -238,11 +225,7 @@ def main(
 
 **Best practice**: Always validate and handle parsing errors to provide clear error messages:
 ```python
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     threshold = int(context.get_parameter("threshold"))
     if threshold < 0 or threshold > 100:
         raise ValueError(
@@ -261,11 +244,7 @@ While the Roboto platform sets various `ROBOTO_*` environment variables, these a
 import os
 import roboto
 
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     # ✅ Recommended: Use InvocationContext methods
     threshold = context.get_parameter("threshold")
     action_input = context.get_input()
@@ -299,11 +278,7 @@ When an action is automatically triggered by Roboto, the trigger specifies the i
 import roboto
 import json
 
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     action_input = context.get_input()
 
     # Iterate through downloaded input files
@@ -318,11 +293,7 @@ def main(
 import roboto
 import pandas as pd
 
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     action_input = context.get_input()
 
     # Iterate through input topics (no file downloads required)
@@ -398,11 +369,7 @@ In this approach, action code queries Roboto for data at runtime, enabling it to
 ```python
 import roboto
 
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     roboto_search = roboto.RobotoSearch.for_roboto_client(context.roboto_client)
 
     # Find files matching a query
@@ -419,11 +386,7 @@ def main(
 ```python
 import roboto
 
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     roboto_search = roboto.RobotoSearch.for_roboto_client(context.roboto_client)
 
     # Find topics matching a query
@@ -461,11 +424,7 @@ Write output files to the directory specified by [`InvocationContext.output_dir`
 ```python
 import roboto
 
-def main(
-    context: roboto.InvocationContext,
-    log_level: int = logging.INFO,
-    dry_run: bool = False,
-) -> None:
+def main(context: roboto.InvocationContext) -> None:
     result = context.output_dir / "results.json"
     result.write_text("Hello, world!")
 ```
