@@ -1,8 +1,0 @@
-######################################################################
-# Python packages to install into this action's virtual environment  #
-# for the purpose of development, local testing, and deployment.     #
-######################################################################
-# Install all required runtime dependencies
--r requirements.runtime.txt
-
-# Add additional Python packages to install below:

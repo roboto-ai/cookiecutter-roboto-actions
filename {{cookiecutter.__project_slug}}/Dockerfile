@@ -12,9 +12,9 @@ FROM public.ecr.aws/docker/library/python:${PYTHON_MAJOR}.${PYTHON_MINOR}-${OS_V
 #     rm -rf /var/lib/apt/lists/*
 
 # -- INSTALL THIRD-PARTY PYTHON LIBRARIES --
-COPY requirements.runtime.txt ./
-RUN python -m pip install --upgrade pip setuptools && \
-    python -m pip install -r requirements.runtime.txt
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
+COPY pyproject.toml ./
+RUN uv pip install --system -r pyproject.toml && rm -rf /bin/uv
 
 COPY src/{{ cookiecutter.__package_name }}/ ./{{ cookiecutter.__package_name }}
 

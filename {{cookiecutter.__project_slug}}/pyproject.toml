@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{ cookiecutter.__package_name }}"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    {%- if cookiecutter.__action_type == "file-based" %}
+    "roboto==0.29.0rc1",  # TODO: remove pin once 0.29.0 is released
+    {%- else %}
+    "roboto[analytics]==0.29.0rc1",  # TODO: remove pin once 0.29.0 is released
+    {%- endif %}
+    "numpy",
+    "pandas",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]

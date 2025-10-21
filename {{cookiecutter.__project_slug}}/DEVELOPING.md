@@ -61,12 +61,14 @@ Update this file if you need a different Python version. Prefer a version compat
 
 #### Runtime Dependencies
 
-Add third-party Python libraries required at runtime by your action to [`requirements.runtime.txt`](requirements.runtime.txt).
+Add third-party Python libraries required at runtime by your action to the `dependencies` array in the `[project]` section of [`pyproject.toml`](pyproject.toml).
 
 Example:
-```txt
-numpy>=1.24.0
-pandas>=2.0.0
+```toml
+[project]
+dependencies = [
+    "roboto"
+]
 ```
 
 After adding dependencies, rebuild your virtual environment:
@@ -96,15 +98,32 @@ RUN apt-get update && apt-get install -y \
 
 #### Development Dependencies
 
-Add Python-based tools used only as part of development and QA (such as linting and testing) to `requirements.dev.txt`.
+Add Python-based tools used only as part of development and verification (such as linting and testing) to the `dev` array in the `[project.optional-dependencies]` section of [`pyproject.toml`](pyproject.toml).
 
 Example:
-```txt
-pytest
-ruff
+```toml
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
 ```
 
 These dependencies are installed in your local virtual environment but are not included in the Docker image deployed to Roboto.
+
+### Running Tests and Linting
+
+To verify your code quality and run tests, use the provided verification script:
+
+```bash
+$ ./scripts/verify.sh
+```
+
+This script runs:
+- **Linting**: Uses `ruff` to check code style and quality
+- **Testing**: Runs the test suite with `pytest`
+
+The script will exit with an error if any checks fail. Run this before committing changes to ensure code quality.
 
 ### Code Organization Best Practices
 

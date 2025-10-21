@@ -1,9 +1,0 @@
-######################################################################
-# Python packages to install into this action's virtual environment  #
-# that are only required at runtime.                                 #
-######################################################################
-{% if cookiecutter.__action_type == "file-based" %}
-roboto==0.29.0rc0  # TODO: remove pin once 0.29.0 is released
-{% else %}
-roboto[analytics]==0.29.0rc0  # TODO: remove pin once 0.29.0 is released
-{% endif %}
