@@ -8,12 +8,10 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     {%- if cookiecutter.__action_type == "file-based" %}
-    "roboto==0.29.0rc1",  # TODO: remove pin once 0.29.0 is released
+    "roboto>=0.29.0",
     {%- else %}
-    "roboto[analytics]==0.29.0rc1",  # TODO: remove pin once 0.29.0 is released
+    "roboto[analytics]>=0.29.0",
     {%- endif %}
-    "numpy",
-    "pandas",
 ]
 
 [project.optional-dependencies]

@@ -337,24 +337,24 @@ def main(context: roboto.InvocationContext) -> None:
 {% if cookiecutter.__action_type == "file-based" %}
 ```bash
 # Query for files using RoboQL
-$ roboto actions invoke-local --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
+$ roboto --log-level=info actions invoke-local --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
 
 # Specify files by dataset ID and paths
-$ roboto actions invoke-local --dataset ds_123 --file-path "logs/file1.log" --file-path "logs/file2.log"
+$ roboto --log-level=info actions invoke-local --dataset ds_123 --file-path "logs/file1.log" --file-path "logs/file2.log"
 ```
 {% else %}
 ```bash
 # Query topics by metrics
-$ roboto actions invoke-local --topic-query "msgpaths[cpuload.load].max > 0.9"
+$ roboto --log-level=info actions invoke-local --topic-query "msgpaths[cpuload.load].max > 0.9"
 
 # Query topics extracted from files uploaded to a specific dataset
-$ roboto actions invoke-local --topic-query "file.dataset.id=ds_123"
+$ roboto --log-level=info actions invoke-local --topic-query "file.dataset.id=ds_123"
 
 # Query topics by name
-$ roboto actions invoke-local --topic-query "topic_name='/diagnostics/cpu'"
+$ roboto --log-level=info actions invoke-local --topic-query "topic_name='/diagnostics/cpu'"
 
 # Combine multiple conditions
-$ roboto actions invoke-local --topic-query "file.device_id = 'ROBOT_1' AND msgpaths[battery_status.temperature].max > 80"
+$ roboto --log-level=info actions invoke-local --topic-query "file.device_id = 'ROBOT_1' AND msgpaths[battery_status.temperature].max > 80"
 ```
 {% endif %}
 
@@ -477,7 +477,7 @@ Use the `roboto actions invoke-local` command to run your action locally:
 $ roboto actions invoke-local --help
 
 # Specify topics to use as input and parameters defined in action.json
-$ roboto actions invoke-local --topic-query="msgpaths[cpuload.load].max > 0.9" --parameter threshold=60
+$ roboto --log-level=info actions invoke-local --topic-query="msgpaths[cpuload.load].max > 0.9" --parameter threshold=60
 ```
 
 See the [Local Action Invocation section in README.md](README.md#local-action-invocation) for complete usage documentation and examples.

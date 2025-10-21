@@ -39,13 +39,13 @@ $ .venv/bin/roboto users whoami
 Example invocation:
 ```bash
 # Process files matching a RoboQL query
-$ .venv/bin/roboto actions invoke-local --file-query "dataset_id=ds_abc123 AND path LIKE 'logs/%.log'"
+$ .venv/bin/roboto --log-level=info actions invoke-local --file-query="dataset_id=ds_abc123 AND path LIKE 'logs/%.log'"
 ```
 {%- else %}
 Example invocation:
 ```bash
 # Process topics matching a RoboQL query
-$ .venv/bin/roboto actions invoke-local --topic-query "msgpaths[cpuload.load].max > 0.9"
+$ .venv/bin/roboto --log-level=info actions invoke-local --topic-query="msgpaths[cpuload.load].max > 0.9"
 ```
 {%- endif %}
 
@@ -60,13 +60,13 @@ $ .venv/bin/roboto actions invoke-local --help
 Example invocation:
 ```bash
 # Process files matching a RoboQL query
-$ .venv/bin/roboto actions invoke --file-query "dataset_id=ds_abc123 AND path LIKE 'logs/%.log'"
+$ .venv/bin/roboto actions invoke --file-query="dataset_id=ds_abc123 AND path LIKE 'logs/%.log'"
 ```
 {%- else %}
 Example invocation:
 ```bash
 # Process topics matching a RoboQL query
-$ .venv/bin/roboto actions invoke --topic-query "msgpaths[cpuload.load].max > 0.9"
+$ .venv/bin/roboto actions invoke --topic-query="msgpaths[cpuload.load].max > 0.9"
 ```
 {%- endif %}
 
