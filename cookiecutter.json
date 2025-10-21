@@ -1,9 +1,14 @@
 {
-    "project_name": "Roboto Python Action",
+    "__prompts__": {
+        "project_name": "Action name (used as the Roboto Action identifier and as part of directory naming)",
+        "description": "Description",
+        "action_type": "Type",
+        "initialize_git_repo": "Initialize a git repository in the new project directory?"
+    },
+    "project_name": null,
     "__project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
     "__package_name": "{{ cookiecutter.__project_slug|replace('-', '_') }}",
-    "author": "Anonymous",
-    "description": "TODO: action description",
+    "description": "",
     "action_type": [
         "File-based: process raw input files uploaded to Roboto",
         "Topic-based: process topics extracted from ingested files"
