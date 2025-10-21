@@ -29,16 +29,9 @@ You must be setup to [access Roboto programmatically](https://docs.roboto.ai/get
 $ .venv/bin/roboto users whoami
 ```
 
-### Deployment
+### Running
 
-Build and deploy to the Roboto Platform with the following commands:
-
-```bash
-$ ./scripts/build.sh
-$ ./scripts/deploy.sh [ROBOTO_ORG_ID]
-```
-
-### Local Action Invocation
+#### Local Invocation
 
 > **Note:** For complete local invocation documentation and examples, see [DEVELOPING.md](DEVELOPING.md#invoking-locally).
 
@@ -59,6 +52,36 @@ $ .venv/bin/roboto actions invoke-local --topic-query "msgpaths[cpuload.load].ma
 Full usage:
 ```bash
 $ .venv/bin/roboto actions invoke-local --help
+```
+
+#### Hosted Invocation
+
+{% if cookiecutter.__action_type == "file-based" %}
+Example invocation:
+```bash
+# Process files matching a RoboQL query
+$ .venv/bin/roboto actions invoke --file-query "dataset_id=ds_abc123 AND path LIKE 'logs/%.log'"
+```
+{%- else %}
+Example invocation:
+```bash
+# Process topics matching a RoboQL query
+$ .venv/bin/roboto actions invoke --topic-query "msgpaths[cpuload.load].max > 0.9"
+```
+{%- endif %}
+
+Full usage:
+```bash
+$ .venv/bin/roboto actions invoke --help
+```
+
+### Deployment
+
+Build and deploy to the Roboto Platform with the following commands:
+
+```bash
+$ ./scripts/build.sh
+$ ./scripts/deploy.sh [ROBOTO_ORG_ID]
 ```
 
 ## Development
