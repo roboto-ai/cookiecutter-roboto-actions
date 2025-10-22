@@ -2,17 +2,17 @@
     "__prompts__": {
         "project_name": "Action name (used as the Roboto Action identifier and as part of directory naming)",
         "description": "Description",
-        "action_type": "Type",
+        "input_data_type": {
+            "__prompt__": "What type of resource will this action take as input data?",
+            "files": "Files that have been uploaded or ingested",
+            "topics": "Topics created by ingestion (experimental)"
+        },
         "initialize_git_repo": "Initialize a git repository in the new project directory?"
     },
     "project_name": null,
     "__project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
     "__package_name": "{{ cookiecutter.__project_slug|replace('-', '_') }}",
     "description": "",
-    "action_type": [
-        "File-based: process raw input files uploaded to Roboto",
-        "Topic-based: process topics extracted from ingested files"
-    ],
-    "__action_type": "{{ cookiecutter.action_type.split(':')[0]|lower }}",
+    "input_data_type": ["files", "topics"],
     "initialize_git_repo": true
 }

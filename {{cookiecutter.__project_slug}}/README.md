@@ -35,7 +35,7 @@ $ .venv/bin/roboto users whoami
 
 > **Note:** For complete local invocation documentation and examples, see [DEVELOPING.md](DEVELOPING.md#invoking-locally).
 
-{% if cookiecutter.__action_type == "file-based" %}
+{% if cookiecutter.input_data_type == "files" %}
 Example invocation:
 ```bash
 # Process files matching a RoboQL query
@@ -56,7 +56,7 @@ $ .venv/bin/roboto actions invoke-local --help
 
 #### Hosted Invocation
 
-{% if cookiecutter.__action_type == "file-based" %}
+{% if cookiecutter.input_data_type == "files" %}
 Example invocation:
 ```bash
 # Process files matching a RoboQL query

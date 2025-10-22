@@ -22,8 +22,7 @@ def test_main_function_signature_matches_expectation():
 
     # Assert
     assert len(parameters) == 1, (
-        f"main() must accept exactly {1} parameter, "
-        f"but found {len(parameters)}"
+        f"main() must accept exactly {1} parameter, but found {len(parameters)}"
     )
 
     param = parameters[0]
@@ -36,11 +35,9 @@ def test_main_function_signature_matches_expectation():
     )
 
     if param.name in type_hints:
-      assert type_hints[param.name] == roboto.InvocationContext, (
-          f"single main() parameter expected to be type of {roboto.InvocationContext.__name__}"
-      )
-
+        assert type_hints[param.name] == roboto.InvocationContext, (
+            f"single main() parameter expected to be type of {roboto.InvocationContext.__name__}"
+        )
 
     if "return" in type_hints:
-      assert type_hints["return"] is types.NoneType, "main() expected to return None"
-    
+        assert type_hints["return"] is types.NoneType, "main() expected to return None"

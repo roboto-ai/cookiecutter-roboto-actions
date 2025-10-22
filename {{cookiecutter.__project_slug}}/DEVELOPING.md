@@ -291,8 +291,8 @@ When an action is automatically triggered by Roboto, the trigger specifies the i
 
 **How to use:** The Roboto Python SDK's [`roboto.InvocationContext`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext) provides helpers for accessing this data. See [get_input()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_input) and [ActionInput](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/action_input/index.html#roboto.action_runtime.action_input.ActionInput) for more.
 
-{% if cookiecutter.__action_type == "file-based" %}
-**Example: Processing Downloaded Files**
+{% if cookiecutter.input_data_type == "files" %}
+**Example: Processing Files**
 ```python
 import roboto
 import json
@@ -300,7 +300,7 @@ import json
 def main(context: roboto.InvocationContext) -> None:
     action_input = context.get_input()
 
-    # Iterate through downloaded input files
+    # Iterate through input files
     for file, local_path in action_input.files:
         print(f"Processing file: {file.relative_path}")
         print(f"  File ID: {file.file_id}")
@@ -334,7 +334,7 @@ def main(context: roboto.InvocationContext) -> None:
 {% endif %}
 
 **Example local invocation**:
-{% if cookiecutter.__action_type == "file-based" %}
+{% if cookiecutter.input_data_type == "files" %}
 ```bash
 # Query for files using RoboQL
 $ roboto --log-level=info actions invoke-local --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
@@ -383,7 +383,7 @@ Only file metadata ([instances of `roboto.File`](https://docs.roboto.ai/referenc
 
 In this approach, action code queries Roboto for data at runtime, enabling it to operate on any data queryable from the Roboto API.
 
-{% if cookiecutter.__action_type == "file-based" %}
+{% if cookiecutter.input_data_type == "files" %}
 **Example: Query for Files at Runtime**
 ```python
 import roboto
