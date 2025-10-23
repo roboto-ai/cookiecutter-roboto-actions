@@ -1,8 +1,21 @@
 # {{cookiecutter.project_name}}
 
+{% if cookiecutter.description -%}
 {{ cookiecutter.description }}
+{% endif %}
 
 > **Note**: This README was generated from a template. Please customize it to describe what this specific action does: its inputs, outputs, parameters, and/or usage instructions.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running](#running)
+    - [Local Invocation](#local-invocation)
+    - [Hosted Invocation](#hosted-invocation)
+- [Development](#development)
+- [Deployment](#deployment)
 
 ## Quick Start
 
@@ -35,19 +48,23 @@ $ .venv/bin/roboto users whoami
 
 > **Note:** For complete local invocation documentation and examples, see [DEVELOPING.md](DEVELOPING.md#invoking-locally).
 
-{% if cookiecutter.input_data_type == "files" %}
+{% if cookiecutter.input_data_type == "files" -%}
 Example invocation:
 ```bash
-# Process files matching a RoboQL query
-$ .venv/bin/roboto --log-level=info actions invoke-local --file-query="dataset_id=ds_abc123 AND path LIKE 'logs/%.log'"
+$ .venv/bin/roboto --log-level=info actions invoke-local \
+    --file-query="dataset_id='<ID>' AND path LIKE '%.mcap'" \
+    --dry-run
 ```
-{%- else %}
+{% else %}
 Example invocation:
 ```bash
-# Process topics matching a RoboQL query
-$ .venv/bin/roboto --log-level=info actions invoke-local --topic-query="msgpaths[cpuload.load].max > 0.9"
+$ .venv/bin/roboto --log-level=info actions invoke-local \
+    --topic-query="msgpaths[cpuload.load].max > 0.9" \
+    --dry-run
 ```
-{%- endif %}
+{% endif %}
+
+_Running without `--dry-run` will have side-effects, like creating events in Roboto._
 
 Full usage:
 ```bash
@@ -56,32 +73,27 @@ $ .venv/bin/roboto actions invoke-local --help
 
 #### Hosted Invocation
 
-{% if cookiecutter.input_data_type == "files" %}
+> **Note:** To run this action on Roboto's hosted compute, you must first build and deploy it. See relevant section in [DEVELOPING.md](DEVELOPING.md#build-and-deployment) for more.
+
+{% if cookiecutter.input_data_type == "files" -%}
 Example invocation:
 ```bash
-# Process files matching a RoboQL query
-$ .venv/bin/roboto actions invoke --file-query="dataset_id=ds_abc123 AND path LIKE 'logs/%.log'"
+$ .venv/bin/roboto actions invoke \
+    --file-query="dataset_id='<ID>' AND path LIKE '%.mcap'" \
+    create-events  # Note required action name parameter for hosted invocation
 ```
-{%- else %}
+{% else %}
 Example invocation:
 ```bash
-# Process topics matching a RoboQL query
-$ .venv/bin/roboto actions invoke --topic-query="msgpaths[cpuload.load].max > 0.9"
+$ .venv/bin/roboto actions invoke \
+    --topic-query="msgpaths[cpuload.load].max > 0.9" \
+    create-events  # Note required action name parameter for hosted invocation
 ```
-{%- endif %}
+{% endif %}
 
 Full usage:
 ```bash
 $ .venv/bin/roboto actions invoke --help
-```
-
-### Deployment
-
-Build and deploy to the Roboto Platform with the following commands:
-
-```bash
-$ ./scripts/build.sh
-$ ./scripts/deploy.sh [ROBOTO_ORG_ID]
 ```
 
 ## Development
@@ -93,3 +105,12 @@ See [DEVELOPING.md](DEVELOPING.md) for detailed information about developing thi
 - Working with action parameters (including secrets)
 - Handling input and output data
 - Building and deploying to Roboto
+
+## Deployment
+
+Build and deploy to the Roboto Platform with the following commands:
+
+```bash
+$ ./scripts/build.sh
+$ ./scripts/deploy.sh [ROBOTO_ORG_ID]
+```
