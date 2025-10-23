@@ -1,14 +1,18 @@
 {
-    "templates": {
-        "Roboto generic action": {
-            "path": "./cookiecutter-roboto-generic-action",
-            "title": "Roboto Generic Action",
-            "description": "A Generic Roboto Action Package"
+    "__prompts__": {
+        "project_name": "Action name (used as the Roboto Action identifier and as part of directory naming)",
+        "description": "Description",
+        "input_data_type": {
+            "__prompt__": "What type of resource will this action take as input data?",
+            "files": "Files that have been uploaded or ingested",
+            "topics": "Topics created by ingestion (experimental)"
         },
-        "Roboto python action": {
-            "path": "./cookiecutter-roboto-python-action",
-            "title": "Roboto Python Action",
-            "description": "A Roboto Action Python Package"
-        }
-    }
+        "initialize_git_repo": "Initialize a git repository in the new project directory?"
+    },
+    "project_name": null,
+    "__project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '-') }}",
+    "__package_name": "{{ cookiecutter.__project_slug|replace('-', '_') }}",
+    "description": "",
+    "input_data_type": ["files", "topics"],
+    "initialize_git_repo": true
 }

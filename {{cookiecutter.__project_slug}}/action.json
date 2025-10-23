@@ -5,5 +5,9 @@
         "vCPU": 512,
         "memory": 1024,
         "storage": 21
-    }
+    },
+    {%- if cookiecutter.input_data_type == "topics" %}
+    "requires_downloaded_inputs": false,
+    {%- endif %}
+    "parameters": []
 }

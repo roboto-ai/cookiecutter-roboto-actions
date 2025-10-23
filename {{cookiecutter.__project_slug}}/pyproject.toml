@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{ cookiecutter.__package_name }}"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "roboto[analytics]>=0.30.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
