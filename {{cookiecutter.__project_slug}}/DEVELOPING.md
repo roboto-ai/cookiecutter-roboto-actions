@@ -76,6 +76,45 @@ After adding dependencies, rebuild your virtual environment:
 $ ./scripts/setup.sh
 ```
 
+#### Development Dependencies
+
+Add Python-based tools used only as part of development and verification (such as linting and testing) to the `dev` array in the `[project.optional-dependencies]` section of [`pyproject.toml`](pyproject.toml).
+
+Example:
+```toml
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+```
+
+These dependencies are installed in your local virtual environment but are not included in the Docker image deployed to Roboto.
+
+#### Troubleshooting: 'No solution found when resolving dependencies'
+
+This project uses [uv](https://docs.astral.sh/uv/) to install dependencies, both locally and in the Docker image used to run the action on Roboto's hosted compute.
+
+If you get an error from `./scripts/setup.sh` like:
+```bash
+$ ./scripts/setup.sh
+Collecting uv
+  Using cached uv-0.9.5-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (11 kB)
+Using cached uv-0.9.5-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (21.3 MB)
+Installing collected packages: uv
+Successfully installed uv-0.9.5
+  × No solution found when resolving dependencies:
+  ╰─▶ Because only library<=1.2.3 is available and {{ cookiecutter.__project_slug }} depends on library>=2.3.4, we can conclude that your requirements are unsatisfiable.
+```
+
+Try clearing the `uv` cache and re-running `./scripts/setup.sh`:
+```bash
+$ .venv/bin/uv cache clean
+$ ./scripts/setup.sh
+```
+
+If the problem persists, confirm that the version of the library you specified is published on [PyPI](https://pypi.org/).
+
 #### System Dependencies
 
 While this action is written in Python, it runs within a Docker container defined in [`Dockerfile`](Dockerfile).
@@ -96,21 +135,6 @@ RUN apt-get update && apt-get install -y \
 
 **Important**: Always test the container's runtime environment before deploying to Roboto by building the image and invoking it locally (see [Invoking Locally](#invoking-locally)).
 
-#### Development Dependencies
-
-Add Python-based tools used only as part of development and verification (such as linting and testing) to the `dev` array in the `[project.optional-dependencies]` section of [`pyproject.toml`](pyproject.toml).
-
-Example:
-```toml
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "ruff",
-]
-```
-
-These dependencies are installed in your local virtual environment but are not included in the Docker image deployed to Roboto.
-
 ### Running Tests and Linting
 
 To verify your code quality and run tests, use the provided verification script:
@@ -120,10 +144,14 @@ $ ./scripts/verify.sh
 ```
 
 This script runs:
-- **Linting**: Uses `ruff` to check code style and quality
-- **Testing**: Runs the test suite with `pytest`
+- **Linting**: Uses [`ruff`](https://docs.astral.sh/ruff/) to check code style and quality
+- **Testing**: Runs the test suite with [`pytest`](https://docs.pytest.org/en/stable/)
 
-The script will exit with an error if any checks fail. Run this before committing changes to ensure code quality.
+The script will exit with an error if any checks fail. Run this before committing changes or as part of CI.
+
+`ruff` provides other useful code quality utilities:
+- **Auto-fix linting errors**: `.venv/bin/ruff check --fix`
+- **Auto-format**: `.venv/bin/ruff format`
 
 ### Code Organization Best Practices
 
@@ -491,7 +519,6 @@ When you run `roboto actions invoke-local`:
 3. **Download**: Input data is downloaded if specified (`requires_downloaded_inputs` in `action.json`)
 4. **Launch**: A Docker container is launched with:
    - Your workspace mounted at its full host path (e.g., `/home/user/project/.workspace`)
-   - Your Roboto config mounted at `/roboto.config.json`
    - All necessary environment variables set
    - Your user/group ID to ensure proper file permissions
 5. **Execute**: The action executes inside the container

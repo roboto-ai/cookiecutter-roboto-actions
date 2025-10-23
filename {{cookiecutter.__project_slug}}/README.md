@@ -64,7 +64,7 @@ $ .venv/bin/roboto --log-level=info actions invoke-local \
 ```
 {% endif %}
 
-_Running without `--dry-run` will have side-effects, like creating events in Roboto._
+_Running without `--dry-run` may have side-effects, depending on how this action is implemented! See relevant section in [DEVELOPING.md](DEVELOPING.md#code-organization-best-practices) for more._
 
 Full usage:
 ```bash
@@ -80,14 +80,14 @@ Example invocation:
 ```bash
 $ .venv/bin/roboto actions invoke \
     --file-query="dataset_id='<ID>' AND path LIKE '%.mcap'" \
-    create-events  # Note required action name parameter for hosted invocation
+    {{ cookiecutter.__project_slug }}  # Note required action name parameter for hosted invocation
 ```
 {% else %}
 Example invocation:
 ```bash
 $ .venv/bin/roboto actions invoke \
     --topic-query="msgpaths[cpuload.load].max > 0.9" \
-    create-events  # Note required action name parameter for hosted invocation
+    {{ cookiecutter.__project_slug }}  # Note required action name parameter for hosted invocation
 ```
 {% endif %}
 
