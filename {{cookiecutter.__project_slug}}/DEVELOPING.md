@@ -525,7 +525,7 @@ When you run `roboto actions invoke-local`:
 
 ### Workspace
 
-Local invocation creates a `.workspace/` directory in the root of the action repo for temporary files, input data, and output. This directory is used only for local development and should not be committed to version control. It is cleared between invocations unless you use the `--preserve-workspace` flag.
+Local invocation creates a `.workspace/` directory in the root of the action repo for temporary files, input data, and output. This directory is used only for local development and should not be committed to version control. It is cleared between invocations.
 
 ## Build and Deployment
 
