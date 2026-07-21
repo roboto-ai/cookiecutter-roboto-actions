@@ -4,7 +4,7 @@
 {{ cookiecutter.description }}
 {% endif %}
 
-> **Note**: This README was generated from a template. Please customize it to describe what this specific action does: its inputs, outputs, parameters, and/or usage instructions.
+> **Note**: This README was generated from a template. Please customize it to describe what this specific action does: its inputs, outputs, parameters, and usage instructions.
 
 ## Table of Contents
 
@@ -23,10 +23,12 @@
 
 - **Docker** (Engine 19.03+): Local invocation always runs in Docker for production parity
 - **Python 3**: A supported version (see [.python-version](.python-version))
+- **Roboto CLI**: See the [installation instructions](https://github.com/roboto-ai/roboto-python-sdk/blob/main/README.md#cli)
 
 ```bash
 $ docker --version
 $ python3 --version
+$ roboto --version
 ```
 
 ### Installation
@@ -37,9 +39,9 @@ Set up a virtual environment and install dependencies with the following command
 $ ./scripts/setup.sh
 ```
 
-You must be setup to [access Roboto programmatically](https://docs.roboto.ai/getting-started/programmatic-access.html). Verify with the following command:
+You must also be set up to [access Roboto programmatically](https://docs.roboto.ai/getting-started/programmatic-access.html). Verify with the following command:
 ```bash
-$ .venv/bin/roboto users whoami
+$ roboto users whoami
 ```
 
 ### Running
@@ -51,49 +53,49 @@ $ .venv/bin/roboto users whoami
 {% if cookiecutter.input_data_type == "files" -%}
 Example invocation:
 ```bash
-$ .venv/bin/roboto --log-level=info actions invoke-local \
+$ roboto --log-level=info actions invoke-local \
     --file-query="dataset_id='<ID>' AND path LIKE '%.mcap'" \
     --dry-run
 ```
 {% else %}
 Example invocation:
 ```bash
-$ .venv/bin/roboto --log-level=info actions invoke-local \
+$ roboto --log-level=info actions invoke-local \
     --topic-query="msgpaths[cpuload.load].max > 0.9" \
     --dry-run
 ```
 {% endif %}
 
-_Running without `--dry-run` may have side-effects, depending on how this action is implemented! See relevant section in [DEVELOPING.md](DEVELOPING.md#code-organization-best-practices) for more._
+Running without `--dry-run` may have side effects, depending on how this action is implemented. See [DEVELOPING.md](DEVELOPING.md#code-organization-best-practices).
 
 Full usage:
 ```bash
-$ .venv/bin/roboto actions invoke-local --help
+$ roboto actions invoke-local --help
 ```
 
 #### Hosted Invocation
 
-> **Note:** To run this action on Roboto's hosted compute, you must first build and deploy it. See relevant section in [DEVELOPING.md](DEVELOPING.md#build-and-deployment) for more.
+> **Note:** To run this action on Roboto's hosted compute, you must first build and deploy it. See [DEVELOPING.md](DEVELOPING.md#build-and-deployment).
 
 {% if cookiecutter.input_data_type == "files" -%}
 Example invocation:
 ```bash
-$ .venv/bin/roboto actions invoke \
+$ roboto actions invoke \
     --file-query="dataset_id='<ID>' AND path LIKE '%.mcap'" \
-    {{ cookiecutter.__project_slug }}  # Note required action name parameter for hosted invocation
+    {{ cookiecutter.__project_slug }}  # Action name is required for hosted invocation
 ```
 {% else %}
 Example invocation:
 ```bash
-$ .venv/bin/roboto actions invoke \
+$ roboto actions invoke \
     --topic-query="msgpaths[cpuload.load].max > 0.9" \
-    {{ cookiecutter.__project_slug }}  # Note required action name parameter for hosted invocation
+    {{ cookiecutter.__project_slug }}  # Action name is required for hosted invocation
 ```
 {% endif %}
 
 Full usage:
 ```bash
-$ .venv/bin/roboto actions invoke --help
+$ roboto actions invoke --help
 ```
 
 ## Development

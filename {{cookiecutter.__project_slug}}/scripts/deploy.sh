@@ -5,9 +5,10 @@ set -euo pipefail
 SCRIPTS_ROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 PACKAGE_ROOT=$(dirname "${SCRIPTS_ROOT}")
 
-# Early exit if virtual environment does not exist and/or roboto is not yet installed
-if [ ! -f "$PACKAGE_ROOT/.venv/bin/roboto" ]; then
-    echo "Virtual environment with roboto SDK does not exist. Please run ./scripts/setup.sh first."
+# Early exit if the Roboto CLI is not installed
+if ! command -v roboto &> /dev/null; then
+    echo "The Roboto CLI is not installed or not on PATH."
+    echo "See https://github.com/roboto-ai/roboto-python-sdk/blob/main/README.md#cli for installation instructions."
     exit 1
 fi
 
@@ -20,8 +21,6 @@ if [ $# -gt 0 ]; then
     org_id=$1  
 fi
 
-roboto_exe="$PACKAGE_ROOT/.venv/bin/roboto"
-
 echo "Pushing {{ cookiecutter.__package_name }}:latest to Roboto's private registry"
 image_push_args=(
     --suppress-upgrade-check
@@ -33,7 +32,7 @@ if [[ -n $org_id ]]; then
 fi
 image_push_args+=({{ cookiecutter.__package_name }}:latest)
 image_push_ret_code=0
-image_uri=$($roboto_exe "${image_push_args[@]}")
+image_uri=$(roboto "${image_push_args[@]}")
 image_push_ret_code=$?
 
 if [ $image_push_ret_code -ne 0 ]; then
@@ -50,4 +49,4 @@ create_args=(
 if [[ -n $org_id ]]; then
     create_args+=(--org $org_id)
 fi
-$roboto_exe actions create "${create_args[@]}"
+roboto actions create "${create_args[@]}"
