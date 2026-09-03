@@ -1,0 +1,28 @@
+# Docker does not read .gitignore. Keep this file in sync with it.
+# Anything listed here is excluded from the Docker build context, so it can never be pulled into
+# the image by a COPY instruction (e.g. __pycache__ under src/) or, on older Docker builders,
+# uploaded to the daemon on every `roboto actions invoke-local` and `./scripts/build.sh`.
+
+# Venv (created by scripts/setup.sh)
+.venv/
+
+# Workspace (created by `roboto actions invoke-local` for downloaded inputs and outputs)
+.workspace/
+
+# Python cache and compiled files
+**/__pycache__/
+**/*.pyc
+
+# Tools
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Packaging
+*.egg-info/
+dist/
+
+# Version control and editors
+.git/
+.vscode/
+*.swp
