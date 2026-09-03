@@ -253,6 +253,7 @@ All parameter values are received as strings, regardless of the intended type. Y
 ```python
 import json
 
+
 def main(context: roboto.InvocationContext) -> None:
     # Integer parameter
     threshold = int(context.get_parameter("threshold"))
@@ -291,6 +292,7 @@ While the Roboto platform sets various `ROBOTO_*` environment variables, these a
 import os
 import roboto
 
+
 def main(context: roboto.InvocationContext) -> None:
     # ✅ Recommended: Use InvocationContext methods
     threshold = context.get_parameter("threshold")
@@ -325,6 +327,7 @@ When an action is automatically triggered by Roboto, the trigger specifies the i
 import roboto
 import json
 
+
 def main(context: roboto.InvocationContext) -> None:
     action_input = context.get_input()
 
@@ -339,6 +342,7 @@ def main(context: roboto.InvocationContext) -> None:
 ```python
 import roboto
 import pandas as pd
+
 
 def main(context: roboto.InvocationContext) -> None:
     action_input = context.get_input()
@@ -356,7 +360,7 @@ def main(context: roboto.InvocationContext) -> None:
 
         # Process the DataFrame
         # Example: Filter data based on conditions
-        high_load = df[df['cpuload.load'] > 0.8]
+        high_load = df[df["cpuload.load"] > 0.8]
         print(f"  Found {len(high_load)} records with high CPU load")
 ```
 {% endif %}
@@ -416,6 +420,7 @@ In this approach, action code queries Roboto for data at runtime, enabling it to
 ```python
 import roboto
 
+
 def main(context: roboto.InvocationContext) -> None:
     roboto_search = roboto.RobotoSearch.for_roboto_client(context.roboto_client)
 
@@ -433,6 +438,7 @@ def main(context: roboto.InvocationContext) -> None:
 ```python
 import roboto
 
+
 def main(context: roboto.InvocationContext) -> None:
     roboto_search = roboto.RobotoSearch.for_roboto_client(context.roboto_client)
 
@@ -444,7 +450,7 @@ def main(context: roboto.InvocationContext) -> None:
         df = topic.get_data_as_df()
 
         # Process the data
-        high_load_records = df[df['cpuload.load'] > 0.9]
+        high_load_records = df[df["cpuload.load"] > 0.9]
         print(f"  Found {len(high_load_records)} high-load records")
 
         # You can also fetch data for specific time ranges
@@ -470,6 +476,7 @@ Write output files to the directory specified by [`InvocationContext.output_dir`
 **Example**:
 ```python
 import roboto
+
 
 def main(context: roboto.InvocationContext) -> None:
     result = context.output_dir / "results.json"
