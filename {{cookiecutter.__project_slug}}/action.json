@@ -1,13 +1,18 @@
 {
+    "schema_version": 2,
     "name": "{{ cookiecutter.__project_slug }}",
     "description": "{{ cookiecutter.description }}",
-    "compute_requirements": {
-        "vCPU": 512,
-        "memory": 1024,
-        "storage": 21
-    },
-    {%- if cookiecutter.input_data_type == "topics" %}
-    "requires_downloaded_inputs": false,
-    {%- endif %}
-    "parameters": []
+    "release": {
+        "substrate": "fargate",
+        "shape": {
+            "vcpu": 0.5,
+            "memory_mib": 1024,
+            "storage_gib": 21
+        },
+        "grants": ["*:read"],
+        {%- if cookiecutter.input_data_type == "topics" %}
+        "requires_downloaded_inputs": false,
+        {%- endif %}
+        "parameters": []
+    }
 }
