@@ -33,13 +33,17 @@ The function receives one argument: `context: roboto.action_runtime.InvocationCo
 
 #### `action.json`
 
-Defines action configuration including:
-- Action name and description
-- Compute requirements (vCPU, memory, storage)
-- Action parameters (see [Action Parameters](#action-parameters))
-- Whether the action requires input data to be pre-downloaded into the working directory
+Defines the action (name and description) and the release that `deploy.sh` publishes (`"schema_version": 2`):
+- `substrate`: where the action runs (`fargate`)
+- `shape`: compute (`vcpu`, `memory_mib`, `storage_gib`)
+- `grants`: what the action's runs may do in Roboto, as `entity:verb` grants. The template starts read-only (`["*:read"]`). Add what your action writes, for example `"topic:create"` or `"file:create"`, or use `["*:*"]` for everything except privileged operations.
+- `timeout_s_default` (optional): the default run timeout in seconds. Without it, your organization's default applies.
+- `parameters`: see [Action Parameters](#action-parameters)
+- `requires_downloaded_inputs`: whether input data is downloaded into the working directory before the action runs
 
-See [ActionConfig](https://docs.roboto.ai/reference/python-sdk/roboto/domain/actions/index.html#roboto.domain.actions.ActionConfig) for details, as well as relevant documentation on https://docs.roboto.ai.
+The container image is not named here: `deploy.sh` pushes the image and passes it to `roboto actions create --image`.
+
+See the [action.json reference](https://docs.roboto.ai/reference/action-json.html) for every field.
 
 #### `Dockerfile`
 
@@ -175,7 +179,7 @@ A Roboto Action can be compared to a function. Like functions, actions can defin
 
 ### Defining Parameters
 
-Parameters are defined in the `parameters` array within `action.json`. Each parameter follows the [ActionParameter](https://docs.roboto.ai/reference/python-sdk/roboto/domain/actions/action_record/index.html#roboto.domain.actions.action_record.ActionParameter) model schema.
+Parameters are defined in the `parameters` array of the `release` in `action.json`. Each parameter follows the [ActionParameter](https://docs.roboto.ai/reference/python-sdk/roboto/domain/actions/action_record/index.html#roboto.domain.actions.action_record.ActionParameter) model schema.
 
 Properties:
 - `name`: Identifier for the parameter. Use this at runtime to lookup the parameter value.
@@ -186,25 +190,31 @@ Properties:
 Example:
 ```json
 {
+    "schema_version": 2,
     "name": "my-action",
     "description": "My action description",
-    "parameters": [
-        {
-            "name": "threshold",
-            "description": "Detection threshold",
-            "required": true
-        },
-        {
-            "name": "labeling_service_api_key",
-            "description": "API key for the labeling service",
-            "required": true
-        },
-        {
-            "name": "output_format",
-            "description": "Output format (json or csv)",
-            "default": "json"
-        }
-    ]
+    "release": {
+        "substrate": "fargate",
+        "shape": {"vcpu": 0.5, "memory_mib": 1024, "storage_gib": 21},
+        "grants": ["*:read"],
+        "parameters": [
+            {
+                "name": "threshold",
+                "description": "Detection threshold",
+                "required": true
+            },
+            {
+                "name": "labeling_service_api_key",
+                "description": "API key for the labeling service",
+                "required": true
+            },
+            {
+                "name": "output_format",
+                "description": "Output format (json or csv)",
+                "default": "json"
+            }
+        ]
+    }
 }
 ```
 
@@ -400,7 +410,7 @@ Refer to [RoboQL documentation](https://docs.roboto.ai/roboql/index.html) for th
 
 #### Configuring Input Data Download
 
-The `requires_downloaded_inputs` field in [`action.json`](action.json) controls whether input data are automatically downloaded before your action runs.
+The `requires_downloaded_inputs` field of the `release` in [`action.json`](action.json) controls whether input data are automatically downloaded before your action runs.
 
 **Note:** This argument only has an effect if input is specified as a file query or a dataset_id/file paths combination.
 
