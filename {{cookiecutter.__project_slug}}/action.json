@@ -1,6 +1,6 @@
 {
-    "name": "{{ cookiecutter.__project_slug }}",
-    "description": "{{ cookiecutter.description }}",
+    "name": {{ cookiecutter.__project_slug|jsonify }},
+    "description": {{ cookiecutter.description|jsonify }},
     "compute_requirements": {
         "vCPU": 512,
         "memory": 1024,
