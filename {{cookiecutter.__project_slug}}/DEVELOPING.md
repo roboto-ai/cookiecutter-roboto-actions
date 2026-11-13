@@ -369,7 +369,7 @@ def main(context: roboto.InvocationContext) -> None:
 {% if cookiecutter.input_data_type == "files" %}
 ```bash
 # Query for files using RoboQL
-$ roboto --log-level=info actions invoke-local --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
+$ roboto --log-level=info actions invoke-local --file-query "dataset_id='ds_123' AND path LIKE '%.log'"
 
 # Specify files by dataset ID and paths
 $ roboto --log-level=info actions invoke-local --dataset ds_123 --file-path "logs/file1.log" --file-path "logs/file2.log"
@@ -380,7 +380,7 @@ $ roboto --log-level=info actions invoke-local --dataset ds_123 --file-path "log
 $ roboto --log-level=info actions invoke-local --topic-query "msgpaths[cpuload.load].max > 0.9"
 
 # Query topics extracted from files uploaded to a specific dataset
-$ roboto --log-level=info actions invoke-local --topic-query "file.dataset_id=ds_123"
+$ roboto --log-level=info actions invoke-local --topic-query "file.dataset_id='ds_123'"
 
 # Query topics by name
 $ roboto --log-level=info actions invoke-local --topic-query "topic_name='/diagnostics/cpu'"
