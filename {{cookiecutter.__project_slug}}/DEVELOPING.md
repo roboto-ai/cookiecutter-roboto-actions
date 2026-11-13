@@ -39,7 +39,7 @@ Defines action configuration including:
 - Action parameters (see [Action Parameters](#action-parameters))
 - Whether the action requires input data to be pre-downloaded into the working directory
 
-See [ActionConfig](https://docs.roboto.ai/reference/python-sdk/roboto/domain/actions/index.html#roboto.domain.actions.ActionConfig) for details, as well as relevant documentation on https://docs.roboto.ai.
+See [ActionConfig](https://www.roboto.ai/docs/reference/python-sdk/roboto/domain/actions#roboto.domain.actions.ActionConfig) for details, as well as relevant documentation on https://www.roboto.ai/docs.
 
 #### `Dockerfile`
 
@@ -175,7 +175,7 @@ A Roboto Action can be compared to a function. Like functions, actions can defin
 
 ### Defining Parameters
 
-Parameters are defined in the `parameters` array within `action.json`. Each parameter follows the [ActionParameter](https://docs.roboto.ai/reference/python-sdk/roboto/domain/actions/action_record/index.html#roboto.domain.actions.action_record.ActionParameter) model schema.
+Parameters are defined in the `parameters` array within `action.json`. Each parameter follows the [ActionParameter](https://www.roboto.ai/docs/reference/python-sdk/roboto/domain/actions/action_record#roboto.domain.actions.action_record.ActionParameter) model schema.
 
 Properties:
 - `name`: Identifier for the parameter. Use this at runtime to lookup the parameter value.
@@ -212,7 +212,7 @@ Example:
 
 Roboto supports passing secrets to actions that have been registered in Roboto's secrets store.
 
-Parameters that receive secret values are defined in `action.json` like any other parameter. When invoking the action, format the value as `roboto-secret://<secret-name>`. At runtime, use [`InvocationContext.get_secret_parameter()`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_secret_parameter) to resolve the secret to its actual value.
+Parameters that receive secret values are defined in `action.json` like any other parameter. When invoking the action, format the value as `roboto-secret://<secret-name>`. At runtime, use [`InvocationContext.get_secret_parameter()`](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext.get_secret_parameter) to resolve the secret to its actual value.
 
 Example:
 ```bash
@@ -228,13 +228,13 @@ Action parameters are passed as environment variables in both hosted compute and
 
 **Hosted compute**: When run by Roboto on its platform, the platform infrastructure sets the same environment variables.
 
-The Roboto Python SDK's [`roboto.InvocationContext`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext) provides convenient access to these parameters. See:
+The Roboto Python SDK's [`roboto.InvocationContext`](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext) provides convenient access to these parameters. See:
 
-- [get_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_parameter)
+- [get_parameter()](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext.get_parameter)
 
-- [get_optional_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_optional_parameter)
+- [get_optional_parameter()](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext.get_optional_parameter)
 
-- [get_secret_parameter()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_secret_parameter)
+- [get_secret_parameter()](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext.get_secret_parameter)
 
 Example usage in `main.py`:
 ```python
@@ -319,7 +319,7 @@ When an action is automatically triggered by Roboto, the trigger specifies the i
 
 **When to use:** This is the most common approach, and is suggested for use with actions invoked by both event-based triggers (e.g., file upload or ingestion) and scheduled triggers.
 
-**How to use:** The Roboto Python SDK's [`roboto.InvocationContext`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext) provides helpers for accessing this data. See [get_input()](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.get_input) and [ActionInput](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/action_input/index.html#roboto.action_runtime.action_input.ActionInput) for more.
+**How to use:** The Roboto Python SDK's [`roboto.InvocationContext`](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext) provides helpers for accessing this data. See [get_input()](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext.get_input) and [ActionInput](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/action_input#roboto.action_runtime.action_input.ActionInput) for more.
 
 {% if cookiecutter.input_data_type == "files" %}
 **Example: Processing Files**
@@ -369,7 +369,7 @@ def main(context: roboto.InvocationContext) -> None:
 {% if cookiecutter.input_data_type == "files" %}
 ```bash
 # Query for files using RoboQL
-$ roboto --log-level=info actions invoke-local --file-query "dataset_id=ds_123 AND path LIKE '%.log'"
+$ roboto --log-level=info actions invoke-local --file-query "dataset_id='ds_123' AND path LIKE '%.log'"
 
 # Specify files by dataset ID and paths
 $ roboto --log-level=info actions invoke-local --dataset ds_123 --file-path "logs/file1.log" --file-path "logs/file2.log"
@@ -380,7 +380,7 @@ $ roboto --log-level=info actions invoke-local --dataset ds_123 --file-path "log
 $ roboto --log-level=info actions invoke-local --topic-query "msgpaths[cpuload.load].max > 0.9"
 
 # Query topics extracted from files uploaded to a specific dataset
-$ roboto --log-level=info actions invoke-local --topic-query "file.dataset.id=ds_123"
+$ roboto --log-level=info actions invoke-local --topic-query "file.dataset_id='ds_123'"
 
 # Query topics by name
 $ roboto --log-level=info actions invoke-local --topic-query "topic_name='/diagnostics/cpu'"
@@ -394,7 +394,7 @@ $ roboto --log-level=info actions invoke-local --topic-query "file.device_id = '
 
 When using `--topic-query` or `--file-query`, provide RoboQL to match data stored in Roboto. The query syntax allows you to filter resources based on their attributes, as well as based on their relationships with other resources.
 
-Refer to [RoboQL documentation](https://docs.roboto.ai/roboql/index.html) for the definitive guide, and use the Roboto web application's Search UI to test queries and inspect result sets.
+Refer to [RoboQL documentation](https://www.roboto.ai/docs/roboql) for the definitive guide, and use the Roboto web application's Search UI to test queries and inspect result sets.
 
 **Important**: Queries match files already uploaded to Roboto and topics already ingested from those files, not local filesystem files.
 
@@ -405,11 +405,11 @@ The `requires_downloaded_inputs` field in [`action.json`](action.json) controls 
 **Note:** This argument only has an effect if input is specified as a file query or a dataset_id/file paths combination.
 
 **`requires_downloaded_inputs: true`** (Default)
-- Input files are downloaded to `ROBOTO_INPUT_DIR` ([`InvocationContext::input_dir`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.input_dir)) before the action executes.
+- Input files are downloaded to `ROBOTO_INPUT_DIR` ([`InvocationContext::input_dir`](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext.input_dir)) before the action executes.
 - Files are accessible via the filesystem at paths provided by `context.get_input()`.
 
 **`requires_downloaded_inputs: false`**
-Only file metadata ([instances of `roboto.File`](https://docs.roboto.ai/reference/python-sdk/roboto/domain/files/file/index.html#roboto.domain.files.file.File)) is available via `context.get_input().files`. `local_path` will always equal `None` in tuples in that collection.
+Only file metadata ([instances of `roboto.File`](https://www.roboto.ai/docs/reference/python-sdk/roboto/domain/files/file#roboto.domain.files.file.File)) is available via `context.get_input().files`. `local_path` will always equal `None` in tuples in that collection.
 
 ### Approach B: Query for Data at Runtime
 
@@ -471,7 +471,7 @@ Actions often need to write output files, such as analysis results, processed da
 
 ### Writing Output Files
 
-Write output files to the directory specified by [`InvocationContext.output_dir`](https://docs.roboto.ai/reference/python-sdk/roboto/action_runtime/invocation_context/index.html#roboto.action_runtime.invocation_context.InvocationContext.output_dir). This directory is available in both local and hosted execution environments.
+Write output files to the directory specified by [`InvocationContext.output_dir`](https://www.roboto.ai/docs/reference/python-sdk/roboto/action_runtime/invocation_context#roboto.action_runtime.invocation_context.InvocationContext.output_dir). This directory is available in both local and hosted execution environments.
 
 **Example**:
 ```python
@@ -495,7 +495,7 @@ def main(context: roboto.InvocationContext) -> None:
 
 ### Advanced Output Control
 
-For more control over output uploads, such as uploading files to specific locations or with custom metadata, use the Roboto Python SDK directly. See the [Roboto Python SDK documentation](https://docs.roboto.ai/reference/python-sdk.html) for up-to-date documentation.
+For more control over output uploads, such as uploading files to specific locations or with custom metadata, use the Roboto Python SDK directly. See the [Roboto Python SDK documentation](https://www.roboto.ai/docs/reference/python-sdk) for up-to-date documentation.
 
 ## Invoking Locally
 
@@ -555,6 +555,6 @@ This script:
 2. Pushes it to Roboto's container registry
 3. Creates or updates the action definition on the Roboto platform using configuration from [`action.json`](action.json)
 
-**Prerequisites**: You must have a personal access token accessible in your environment. See [Programmatic Access](https://docs.roboto.ai/getting-started/programmatic-access.html#personal-access-token) for more.
+**Prerequisites**: You must have a personal access token accessible in your environment. See [Programmatic Access](https://www.roboto.ai/docs/getting-started/programmatic-access#personal-access-token) for more.
 
 **Note**: If you belong to multiple Roboto organizations, specify the target organization by setting the `ROBOTO_ORG_ID` environment variable or passing the organization ID as the first argument to `deploy.sh`.
