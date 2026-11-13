@@ -39,7 +39,7 @@ Set up a virtual environment and install dependencies with the following command
 $ ./scripts/setup.sh
 ```
 
-You must also be set up to [access Roboto programmatically](https://docs.roboto.ai/getting-started/programmatic-access.html). Verify with the following command:
+You must also be set up to [access Roboto programmatically](https://www.roboto.ai/docs/getting-started/programmatic-access). Verify with the following command:
 ```bash
 $ roboto users whoami
 ```
